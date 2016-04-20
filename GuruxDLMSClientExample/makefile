@@ -16,9 +16,11 @@ LFLAGS   = -L../development/lib
 SRCDIR   = src
 OBJDIR   = obj
 BINDIR   = bin
+INCDIR   = indlude
 
 SOURCES  := $(wildcard $(SRCDIR)/*.cpp)
-INCLUDES := $(wildcard $(SRCDIR)/*.h)
+INCLUDES += -I$(abspath include)
+# INCLUDES += -I$(abspath include/tclap)
 
 OBJECTS  := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 rm       = rm -f
@@ -28,13 +30,13 @@ $(BINDIR)/$(TARGET): $(OBJECTS)
 	@echo "Linking complete!"
 
 $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
-	@$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 	@echo "Compiled "$<" successfully!"
 
 .PHONEY: clean
 clean:
 	@$(rm) $(OBJDIR)/$(OBJECTS)
-	@echo "Cleanup complete!" 
+	@echo "Cleanup complete!"
 	@echo $(OBJECTS)
 
 .PHONEY: remove

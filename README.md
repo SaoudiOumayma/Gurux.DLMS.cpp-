@@ -6,9 +6,9 @@ GuruxDLMS.cpp library is a high-performance ANSI C++ component that helps you to
 
 For more info check out [Gurux.DLMS](http://www.gurux.fi/index.php?q=Gurux.DLMS "Gurux.DLMS").
 
-We are updating documentation on Gurux web page. 
+We are updating documentation on Gurux web page.
 
-Read should read [DLMS/COSEM FAQ](http://www.gurux.org/index.php?q=DLMSCOSEMFAQ) first to get started. Read Instructions for making your own [meter reading application](http://www.gurux.org/index.php?q=DLMSIntro) or build own 
+Read should read [DLMS/COSEM FAQ](http://www.gurux.org/index.php?q=DLMSCOSEMFAQ) first to get started. Read Instructions for making your own [meter reading application](http://www.gurux.org/index.php?q=DLMSIntro) or build own
 DLMS/COSEM [meter/simulator/proxy](http://www.gurux.org/index.php?q=OwnDLMSMeter).
 
 If you have problems you can ask your questions in Gurux [Forum](http://www.gurux.org/forum).
@@ -17,7 +17,7 @@ You can use any connection (TCP, serial, PLC) library you want to.
 Gurux.DLMS classes only parse the data.
 
 Before start
-=========================== 
+===========================
 
 This is ALPHA version. If you find an issue, please report it here:
 http://www.gurux.fi/fi/project/issues/gurux.dlms.cpp
@@ -31,8 +31,8 @@ Change Host name, port and DLMS settings for example. Run make and you are ready
 Server side functionality is added later in this spring.
 
 Simple example
-=========================== 
-Before use you must set following device parameters. 
+===========================
+Before use you must set following device parameters.
 Parameters are manufacturer spesific.
 
 
@@ -43,9 +43,14 @@ All default parameters are given in constructor.
 CGXDLMSClient client(true);
 
 ```
+## Command line options
+You can specify following command line arguments:
+* `-s` or `--serial` - to use serial communication instead of TCP/IP
+* `-p` or `--port` - to specify port name for serial communication eg. "/dev/USB0" (default is COM0 for Windows)
+* `-i` or `--iec` - for starting IEC transmission	
 
 HDLC addressing
-=========================== 
+===========================
 
 Each meter has own server address. Server address is divided to Logical address and Physical address.
 Usually you can use value 1 for meter address. You can count server address from serial number of the meter.
@@ -64,7 +69,7 @@ If you are using IEC handshake you must first send identify command and move to 
 ```C++
 //Open serial port.
 int GXClient::Open(const char* pPortName, bool IEC)
-{	
+{
 	char buff[10];
 #if _MSC_VER > 1000
 	sprintf_s(buff, 10, "\\\\.\\%s", pPortName);
@@ -72,38 +77,38 @@ int GXClient::Open(const char* pPortName, bool IEC)
 	sprintf(buff, "\\\\.\\%s", pPortName);
 #endif
 	//Open serial port for read / write. Port can't share.
-	m_hComPort = CreateFileA(buff, 
-					GENERIC_READ | GENERIC_WRITE, 0, NULL, 
+	m_hComPort = CreateFileA(buff,
+					GENERIC_READ | GENERIC_WRITE, 0, NULL,
 					OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 	if (m_hComPort == INVALID_HANDLE_VALUE)
 	{
 		return ERROR_CODES_INVALID_PARAMETER;
-	}	
-	COMMCONFIG conf = {0};	
+	}
+	COMMCONFIG conf = {0};
 	DWORD dwSize = sizeof(conf);
 	conf.dwSize = dwSize;
 	//This might fail with virtual COM ports are used.
 	GetDefaultCommConfigA(buff, &conf, &dwSize);
 	if (IEC)
 	{
-		conf.dcb.BaudRate = CBR_300; 
-		conf.dcb.ByteSize = 7; 
-		conf.dcb.StopBits = ONESTOPBIT; 
-		conf.dcb.Parity = EVENPARITY; 
+		conf.dcb.BaudRate = CBR_300;
+		conf.dcb.ByteSize = 7;
+		conf.dcb.StopBits = ONESTOPBIT;
+		conf.dcb.Parity = EVENPARITY;
 	}
 	else
 	{
-		conf.dcb.BaudRate = CBR_9600; 
-		conf.dcb.ByteSize = 8; 
-		conf.dcb.StopBits = ONESTOPBIT; 
-		conf.dcb.Parity = NOPARITY; 
+		conf.dcb.BaudRate = CBR_9600;
+		conf.dcb.ByteSize = 8;
+		conf.dcb.StopBits = ONESTOPBIT;
+		conf.dcb.Parity = NOPARITY;
 	}
-	conf.dcb.fDtrControl = DTR_CONTROL_ENABLE; 
-	conf.dcb.fRtsControl = DTR_CONTROL_ENABLE; 
+	conf.dcb.fDtrControl = DTR_CONTROL_ENABLE;
+	conf.dcb.fRtsControl = DTR_CONTROL_ENABLE;
 	SetCommState(m_hComPort, &conf.dcb); 	
 	int cnt;
 	if (IEC)
-	{	
+	{
 #if _MSC_VER > 1000
 		strcpy_s(buff, 10, "/?!\r\n");
 #else
@@ -267,8 +272,8 @@ int GXClient::Open(const char* pPortName, bool IEC)
 			TRACE1("\r\n");
 		}
 		TRACE("Changing bit rate.\r\n", 0);
-		conf.dcb.ByteSize = 8; 
-		conf.dcb.StopBits = ONESTOPBIT; 
+		conf.dcb.ByteSize = 8;
+		conf.dcb.StopBits = ONESTOPBIT;
 		conf.dcb.Parity = NOPARITY; 		
 		SetCommState(m_hComPort, &conf.dcb); 	
 		//Some meters need this sleep. Do not remove.

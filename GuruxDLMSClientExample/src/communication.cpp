@@ -362,7 +362,7 @@ int CGXCommunication::Open(const char* port, bool iec, int maxBaudrate)
 #else //#if defined(__LINUX__)
     struct termios options;
     // read/write | not controlling term | don't wait for DCD line signal.
-    m_hComPort = open(port, O_RDWR | O_NOCTTY | O_NONBLOCK);
+    m_hComPort = open(port, O_RDWR | O_NOCTTY /*| O_NONBLOCK*/);  // with O_NONBLOCK flag only one byte is being sent
     if(m_hComPort == -1) // if open is unsuccessful.
     {
         printf("Failed to Open port.\r");
