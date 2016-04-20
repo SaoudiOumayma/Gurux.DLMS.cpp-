@@ -35,6 +35,8 @@
 // GuruxDLMSClientExample.cpp : Defines the entry point for the Gurux DLMS Client example.
 //
 
+#include "tclap/CmdLine.h"
+
 #include "../include/communication.h"
 #include "../../development/include/GXDLMSConverter.h"
 #include "../../development/include/GXDLMSProfileGeneric.h"
@@ -51,7 +53,20 @@ int _tmain(int argc, _TCHAR* argv[])
 int main( int argc, char* argv[] )
 #endif
 {
-    {
+
+
+
+  try{
+      TCLAP::CmdLine cmd("This is an GuruxDLMSClientExample", ' ', "0.0");
+      TCLAP::ValueArg<std::string> portArg("p","port","Name name of serial port",false,"COM0","string");
+      cmd.add( portArg );
+      TCLAP::SwitchArg serialSwitch("s","serial","Use serial communication instead of TCP/IP", false);
+    	cmd.add( serialSwitch );
+      TCLAP::SwitchArg iecSwitch("i","iec","Use IEC ", false);
+    	cmd.add( iecSwitch );
+
+      cmd.parse( argc, argv );
+
         //Use user locale settings.
         std::locale::global(std::locale(""));
 #if defined(_WIN32) || defined(_WIN64)//Windows
@@ -88,19 +103,19 @@ int main( int argc, char* argv[] )
         CGXDLMSClient cl(false);
         CGXCommunication comm(&cl, 1500, trace);
         //Serial port settings.
-        /*
-        if ((ret = comm.Open("COM3", false)) != 0)
-        {
-            TRACE("Connect failed %S.\r\n", CGXDLMSConverter::GetErrorMessage(ret));
-            return 1;
-        }
-
-        */
-        //TCP/IP settings.
-        if ((ret = comm.Connect("localhost", 4060)) != 0)
-        {
-            TRACE("Connect failed %s.\r\n", CGXDLMSConverter::GetErrorMessage(ret));
-            return 1;
+        if (serialSwitch.getValue()){
+          if ((ret = comm.Open(portArg.getValue().c_str(), iecSwitch.getValue() )) != 0)
+          {
+              TRACE("Connect failed %S.\r\n", CGXDLMSConverter::GetErrorMessage(ret));
+              return 1;
+          }
+        } else {
+          //TCP/IP settings.
+          if ((ret = comm.Connect("localhost", 4060)) != 0)
+          {
+              TRACE("Connect failed %s.\r\n", CGXDLMSConverter::GetErrorMessage(ret));
+              return 1;
+          }
         }
         if ((ret = comm.InitializeConnection()) != 0)
         {
@@ -305,7 +320,9 @@ int main( int argc, char* argv[] )
         }
         //Close connection.
         comm.Close();
-    }
+    } catch (TCLAP::ArgException &e)  // catch any exceptions
+  	{ std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl; }
+
 #if defined(_WIN32) || defined(_WIN64)//Windows
     WSACleanup();
 #if _MSC_VER > 1400
@@ -314,4 +331,3 @@ int main( int argc, char* argv[] )
 #endif
     return 0;
 }
-
