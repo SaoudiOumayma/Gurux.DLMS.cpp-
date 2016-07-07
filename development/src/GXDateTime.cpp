@@ -239,7 +239,7 @@ int GetDateFormat(GXDLMS_DATE_FORMAT& format, char& separator)
     order.tm_year = 0;
     order.tm_mday = 1;
     order.tm_mon = 1;//Month is zero based.
-    ret = strftime(buff, 10, "%x", &order);
+    ret = strftime(buff, 11, "%x", &order);
     if (ret > 0)
     {
         for (pos = 0; pos != ret; ++pos)
