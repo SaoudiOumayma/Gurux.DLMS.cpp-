@@ -30,7 +30,8 @@ Change Host name, port and DLMS settings for example. Run make and you are ready
 
 Server side functionality is added later in this spring.
 
-Simple example=========================== 
+Simple example
+=========================== 
 Before use you must set following device parameters. 
 Parameters are manufacturer spesific.
 
