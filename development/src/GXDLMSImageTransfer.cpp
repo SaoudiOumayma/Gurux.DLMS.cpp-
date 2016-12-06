@@ -315,6 +315,7 @@ int CGXDLMSImageTransfer::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventA
 			}
 		}
 		e.SetValue(data);
+		return DLMS_ERROR_CODE_OK;
 	}
 	return DLMS_ERROR_CODE_INVALID_PARAMETER;
 }
