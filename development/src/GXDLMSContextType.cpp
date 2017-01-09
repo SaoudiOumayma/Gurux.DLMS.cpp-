@@ -103,6 +103,6 @@ std::string CGXDLMSContextType::ToString()
     bb.SetInt8(' ');
     bb.AddIntAsString(m_QualityOfService);
     bb.SetInt8(' ');
-    bb.Set(&m_CypheringInfo, 0, -1);
+    bb.Set(&m_CypheringInfo, 0, ULONG_MAX);
     return bb.ToString();
 }

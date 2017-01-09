@@ -217,7 +217,7 @@ int CGXDLMS::ReceiverReady(
             &bb, NULL);
         ret = GetSnMessages(p, tmp);
     }
-    reply.Set(&tmp.at(0), 0, -1);
+    reply.Set(&tmp.at(0), 0, ULONG_MAX);
     return ret;
 }
 
@@ -251,7 +251,7 @@ int CGXDLMS::GetWrapperFrame(
     // Data length.
     reply.SetUInt16((unsigned short)data.GetSize());
     // Data
-    reply.Set(&data, data.GetPosition(), -1);
+    reply.Set(&data, data.GetPosition(), ULONG_MAX);
 
     // Remove sent data in server side.
     if (settings.IsServer())

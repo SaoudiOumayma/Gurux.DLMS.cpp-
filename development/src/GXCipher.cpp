@@ -35,6 +35,7 @@
 #include "../include/GXCipher.h"
 #include "../include/chipperingenums.h"
 #include "../include/GXHelpers.h"
+#include <climits>
 
 // Consts.
 const unsigned char BLOCK_SIZE = 16;
@@ -120,8 +121,8 @@ static void PackBlock(
 
 int GetUInt32ByIndexLE(
     CGXByteBuffer *arr,
-    unsigned long index,
-    unsigned long* value)
+    uint32_t index,
+    uint32_t* value)
 {
     if (index + 4 > arr->GetSize())
     {
@@ -193,7 +194,7 @@ int CGXCipher::ProcessBlock(
     return 0;
 }
 
-static unsigned long* GetCell(unsigned long *start, int row, int col)
+static uint32_t* GetCell(uint32_t *start, int row, int col)
 {
     return start + 4 * row + col;
 }
@@ -208,13 +209,13 @@ static unsigned long* GetCell(unsigned long *start, int row, int col)
 *            Blocks to shift.
 */
 static void ShiftRight(
-    unsigned long* block,
+    uint32_t* block,
     int count)
 {
     int i, bit = 0;
     for (i = 0; i < 4; ++i)
     {
-        unsigned long b = block[i];
+        uint32_t b = block[i];
         block[i] = (b >> count) | bit;
         bit = b << (32 - count);
     }
@@ -228,8 +229,8 @@ static void ShiftRight(
     * @param val
     */
 static void Xor128(
-    unsigned long* block,
-    unsigned long* value)
+    uint32_t* block,
+    uint32_t* value)
 {
     int pos;
     for (pos = 0; pos != 4; ++pos)
@@ -239,7 +240,7 @@ static void Xor128(
 }
 
 static void MultiplyP(
-    unsigned long* x)
+    uint32_t* x)
 {
     unsigned char lsb = (x[3] & 1) != 0;
     ShiftRight(x, 1);
@@ -250,10 +251,10 @@ static void MultiplyP(
 }
 
 static void MultiplyP8(
-    unsigned long* x)
+    uint32_t* x)
 {
     char pos;
-    unsigned long lsw = x[3];
+    uint32_t lsw = x[3];
     ShiftRight(x, 8);
     for (pos = 0; pos != 8; ++pos)
     {
@@ -267,13 +268,13 @@ static void MultiplyP8(
 int CGXCipher::Init2(
     CGXCipher* settings)
 {
-    unsigned long *tmp;
+    uint32_t *tmp;
     int pos, pos1, pos2, k, ret;
     //If array is not created yet.
     if (settings->m_mArray == 0)
     {
         //Array must set to zero.
-        settings->m_mArray = (unsigned long*)calloc(1, sizeof(unsigned long) * 32 * 16 * 4);
+        settings->m_mArray = (uint32_t*)calloc(1, sizeof(uint32_t) * 32 * 16 * 4);
         if ((ret = settings->m_H.GetUInt128(0, (unsigned char*)GetCell(settings->m_mArray, 1 * 16, 8 * 4))) != 0)
         {
             return ret;
@@ -282,18 +283,18 @@ int CGXCipher::Init2(
         for (pos = 4; pos >= 1; pos >>= 1)
         {
             tmp = GetCell(settings->m_mArray, 1 * 16, pos * 4);
-            memcpy(tmp, GetCell(settings->m_mArray, 1 * 16, (pos + pos) * 4), 4 * sizeof(long));
+            memcpy(tmp, GetCell(settings->m_mArray, 1 * 16, (pos + pos) * 4), 4 * sizeof(uint32_t));
             MultiplyP(tmp);
         }
 
         tmp = GetCell(settings->m_mArray, 0 * 16, 8 * 4);
-        memcpy(tmp, GetCell(settings->m_mArray, 1 * 16, 1 * 4), 4 * sizeof(long));
+        memcpy(tmp, GetCell(settings->m_mArray, 1 * 16, 1 * 4), 4 * sizeof(uint32_t));
         MultiplyP(tmp);
 
         for (pos = 4; pos >= 1; pos >>= 1)
         {
             tmp = GetCell(settings->m_mArray, 0 * 16, pos * 4);
-            memcpy(tmp, GetCell(settings->m_mArray, 0 * 16, (pos + pos) * 4), 4 * sizeof(long));
+            memcpy(tmp, GetCell(settings->m_mArray, 0 * 16, (pos + pos) * 4), 4 * sizeof(uint32_t));
             MultiplyP(tmp);
         }
 
@@ -304,7 +305,7 @@ int CGXCipher::Init2(
                 for (k = 1; k < pos2; ++k)
                 {
                     tmp = GetCell(settings->m_mArray, pos1 * 16, (pos2 + k) * 4);
-                    memcpy(tmp, GetCell(settings->m_mArray, pos1 * 16, pos2 * 4), 4 * sizeof(long));
+                    memcpy(tmp, GetCell(settings->m_mArray, pos1 * 16, pos2 * 4), 4 * sizeof(uint32_t));
                     Xor128(tmp, GetCell(settings->m_mArray, pos1 * 16, k * 4));
                 }
             }
@@ -319,7 +320,7 @@ int CGXCipher::Init2(
                 for (pos = 8; pos > 0; pos >>= 1)
                 {
                     tmp = GetCell(settings->m_mArray, pos1 * 16, pos * 4);
-                    memcpy(tmp, GetCell(settings->m_mArray, (pos1 - 2) * 16, pos * 4), 4 * sizeof(long));
+                    memcpy(tmp, GetCell(settings->m_mArray, (pos1 - 2) * 16, pos * 4), 4 * sizeof(uint32_t));
                     MultiplyP8(tmp);
                 }
             }
@@ -338,18 +339,18 @@ int CGXCipher::GetAuthenticatedData(
     if (security == DLMS_SECURITY_AUTHENTICATION)
     {
         result.SetUInt8(security);
-        result.Set(&authenticationKey, 0, -1);
+        result.Set(&authenticationKey, 0, ULONG_MAX);
         result.Set(plainText.GetData() + plainText.GetPosition(),
             plainText.GetSize() - plainText.GetPosition());
     }
     else if (security == DLMS_SECURITY_ENCRYPTION)
     {
-        result.Set(&authenticationKey, 0, -1);
+        result.Set(&authenticationKey, 0, ULONG_MAX);
     }
     else if (security == DLMS_SECURITY_AUTHENTICATION_ENCRYPTION)
     {
         result.SetUInt8(security);
-        result.Set(&authenticationKey, 0, -1);
+        result.Set(&authenticationKey, 0, ULONG_MAX);
     }
     else
     {
@@ -376,8 +377,8 @@ static unsigned int SubWord(unsigned int value)
 * @return
 */
 static unsigned int Shift(
-    unsigned long value,
-    unsigned long shift)
+    uint32_t value,
+    uint32_t shift)
 {
     return (value >> shift) | (value << (32 - shift));
 }
@@ -428,7 +429,7 @@ void CGXCipher::MultiplyH(
 {
     int pos;
     long tmp[4] = { 0 };
-    unsigned long* m;
+    uint32_t* m;
     for (pos = 0; pos != 16; ++pos)
     {
         m = GetCell(settings->m_mArray, 16 * (pos + pos), 4 * (value[pos] & 0x0f));
@@ -606,7 +607,7 @@ int CGXCipher::GetRounds(CGXCipher* settings)
 
 int GetUInt32LE(
     CGXByteBuffer* arr,
-    unsigned long* value)
+    uint32_t* value)
 {
     if (arr->GetPosition() + 4 > arr->GetSize())
     {
@@ -630,7 +631,7 @@ int CGXCipher::GenerateKey(CGXCipher* settings)
         int rounds, ret, j, t = 0;
         rounds = GetRounds(settings);
         // 4 words make one block.
-        settings->m_WorkingKey = (unsigned long*)malloc(4 * sizeof(unsigned long) * (rounds + 1));
+        settings->m_WorkingKey = (uint32_t*)malloc(4 * sizeof(uint32_t) * (rounds + 1));
         // Copy the key into the round key array.
         settings->m_BlockCipherKey.SetPosition(0);
         for (i = 0; i < settings->m_BlockCipherKey.GetSize(); t++)
@@ -746,12 +747,12 @@ int CGXCipher::Init(
 
     settings->m_J0.Zero(0, 16);
     settings->m_J0.SetSize(0);
-    settings->m_J0.Set(&iv, 0, -1);
+    settings->m_J0.Set(&iv, 0, ULONG_MAX);
     settings->m_J0.SetSize(16);
     settings->m_J0.GetData()[15] = 0x01;
     GetGHash(settings, &aad);
     settings->m_Counter.Clear();
-    settings->m_Counter.Set(&settings->m_J0, 0, -1);
+    settings->m_Counter.Set(&settings->m_J0, 0, ULONG_MAX);
     block.bytesRemaining = 0;
     block.totalLength = 0;
     return 0;
@@ -843,7 +844,7 @@ void CGXCipher::Reset(
 {
     GetGHash(settings, aad);
     settings->m_Counter.Capacity(0);
-    settings->m_Counter.Set(&settings->m_J0, 0, -1);
+    settings->m_Counter.Set(&settings->m_J0, 0, ULONG_MAX);
 }
 
 /**
@@ -955,7 +956,7 @@ int CGXCipher::Encrypt(
         }
         if ((type & DLMS_COUNT_TYPE_TAG) != 0)
         {
-            data.Set(&block.tag, 0, -1);
+            data.Set(&block.tag, 0, ULONG_MAX);
         }
     }
     else if (security == DLMS_SECURITY_ENCRYPTION)
@@ -964,7 +965,7 @@ int CGXCipher::Encrypt(
         {
             data.SetUInt32(frameCounter);
         }
-        data.Set(&encrypted, 0, -1);
+        data.Set(&encrypted, 0, ULONG_MAX);
     }
     else if (security == DLMS_SECURITY_AUTHENTICATION_ENCRYPTION)
     {
@@ -974,12 +975,12 @@ int CGXCipher::Encrypt(
         }
         if ((type & DLMS_COUNT_TYPE_DATA) != 0)
         {
-            data.Set(&encrypted, 0, -1);
+            data.Set(&encrypted, 0, ULONG_MAX);
         }
         if ((type & DLMS_COUNT_TYPE_DATA) != 0 ||
             (type & DLMS_COUNT_TYPE_TAG) != 0)
         {
-            data.Set(&block.tag, 0, -1);
+            data.Set(&block.tag, 0, ULONG_MAX);
         }
     }
     else
@@ -997,7 +998,7 @@ int CGXCipher::Encrypt(
     {
         encrypted.Capacity(data.GetSize());
     }
-    encrypted.Set(&data, 0, -1);
+    encrypted.Set(&data, 0, ULONG_MAX);
     return 0;
 }
 
