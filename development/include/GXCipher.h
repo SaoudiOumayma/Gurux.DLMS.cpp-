@@ -36,16 +36,15 @@
 #define GXCIPHER_H
 
 #include "GXBytebuffer.h"
-#include <stdint.h>
 
 //This is reserved for internal use to save block info.
 class CGXGMacBlock
 {
 public:
-    uint32_t c0;
-    uint32_t c1;
-    uint32_t c2;
-    uint32_t c3;
+    unsigned long c0;
+    unsigned long c1;
+    unsigned long c2;
+    unsigned long c3;
     // How many bytes are not crypted/encrypted.
     int bytesRemaining;
     long totalLength;
@@ -85,12 +84,12 @@ private:
     /**
     * Working key is counted only once from block cipher key.
     */
-    uint32_t* m_WorkingKey;
+    unsigned long* m_WorkingKey;
     CGXByteBuffer m_H;
     CGXByteBuffer m_J0;
     CGXByteBuffer m_S;
     CGXByteBuffer m_Counter;
-    uint32_t* m_mArray;
+    unsigned long* m_mArray;
 
     static int GetRounds(
         CGXCipher* settings);

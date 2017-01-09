@@ -37,7 +37,6 @@
 
 #include "errorcodes.h"
 #include "enums.h"
-#include <climits>
 
 const unsigned char VECTOR_CAPACITY = 50;
 class CGXByteBuffer
@@ -109,7 +108,7 @@ public:
 
     void Set(const void* pSource, unsigned long count);
 
-    void Set(CGXByteBuffer* data, unsigned long index = 0, unsigned long count = ULONG_MAX);
+    void Set(CGXByteBuffer* data, unsigned long index = 0, unsigned long count = -1);
 
     void AddString(const char* value);
 
