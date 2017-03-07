@@ -63,7 +63,7 @@ $(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
 
 .PHONEY: clean
 clean:
-	@$(rm) $(OBJDIR)/$(OBJECTS)
+	@$(rm) $(OBJECTS)
 	@echo "Cleanup complete!" 
 	@echo $(OBJECTS)
 
