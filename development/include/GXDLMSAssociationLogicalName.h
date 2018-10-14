@@ -62,7 +62,7 @@ private:
 
     std::string m_SecuritySetupReference;
 
-    std::vector<std::pair<unsigned char, std::string>> m_UserList;
+    std::vector<std::pair<unsigned char, std::string> > m_UserList;
 
     std::pair<unsigned char, std::string> m_CurrentUser;
 
@@ -120,9 +120,9 @@ public:
 
     void SetSecret(CGXByteBuffer& value);
 
-    std::vector<std::pair<unsigned char, std::string>>& GetUserList();
+    std::vector<std::pair<unsigned char, std::string> >& GetUserList();
 
-    void SetUserList(std::vector<std::pair<unsigned char, std::string>>& value);
+    void SetUserList(std::vector<std::pair<unsigned char, std::string> >& value);
 
     std::pair<unsigned char, std::string>& GetCurrentUser();
 

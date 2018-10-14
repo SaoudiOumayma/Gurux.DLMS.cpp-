@@ -323,12 +323,12 @@ void CGXDLMSAssociationLogicalName::SetSecret(CGXByteBuffer& value)
     m_Secret = value;
 }
 
-std::vector<std::pair<unsigned char, std::string>>& CGXDLMSAssociationLogicalName::GetUserList()
+std::vector<std::pair<unsigned char, std::string> >& CGXDLMSAssociationLogicalName::GetUserList()
 {
     return m_UserList;
 }
 
-void CGXDLMSAssociationLogicalName::SetUserList(std::vector<std::pair<unsigned char, std::string>>& value)
+void CGXDLMSAssociationLogicalName::SetUserList(std::vector<std::pair<unsigned char, std::string> >& value)
 {
     m_UserList = value;
 }
