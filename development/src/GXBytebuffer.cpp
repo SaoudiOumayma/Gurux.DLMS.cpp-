@@ -114,19 +114,22 @@ void CGXByteBuffer::SetPosition(unsigned long value)
 void CGXByteBuffer::Capacity(unsigned long capacity)
 {
     m_Capacity = capacity;
+
+    if (m_Data != NULL)
+    {
+        free(m_Data);
+        m_Data = NULL;
+    }
+
     if (capacity == 0)
     {
-        if (m_Data != NULL)
-        {
-            free(m_Data);
-            m_Data = NULL;
-        }
         m_Size = 0;
         m_Position = 0;
     }
     else
     {
         m_Data = (unsigned char*)realloc(m_Data, m_Capacity);
+
         if (m_Size > capacity)
         {
             m_Size = capacity;
@@ -305,6 +308,11 @@ void CGXByteBuffer::Set(const void* pSource, unsigned long count)
             else
             {
                 m_Capacity += count + VECTOR_CAPACITY;
+            }
+
+            if (m_Data != NULL)
+            {
+                free(m_Data);
             }
             m_Data = (unsigned char*)realloc(m_Data, m_Capacity);
         }
