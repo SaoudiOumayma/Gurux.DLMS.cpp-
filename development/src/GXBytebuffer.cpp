@@ -309,6 +309,11 @@ void CGXByteBuffer::Set(const void* pSource, unsigned long count)
             {
                 m_Capacity += count + VECTOR_CAPACITY;
             }
+
+            if (m_Data != NULL)
+            {
+                free(m_Data);
+            }
             m_Data = (unsigned char*)realloc(m_Data, m_Capacity);
         }
         memcpy(m_Data + m_Size, pSource, count);
