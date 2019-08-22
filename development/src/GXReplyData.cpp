@@ -237,7 +237,7 @@ void CGXReplyData::SetTime(struct tm* value)
         {
             m_Time = (struct tm*) malloc(sizeof(struct tm));
         }
-        memcpy(&m_Time, value, sizeof(struct tm));
+        memcpy(m_Time, value, sizeof(struct tm));
     }
 }
 
