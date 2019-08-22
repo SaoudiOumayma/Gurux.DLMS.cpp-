@@ -773,7 +773,7 @@ int CGXCipher::Decrypt(
     {
         return ret;
     }
-    m_FrameCounter = frameCounter + 1;
+    m_FrameCounter = m_FrameCounter + 1;
     if (security == DLMS_SECURITY_AUTHENTICATION)
     {
         length = (unsigned short)(data.m_Size - data.m_Position - 12);
