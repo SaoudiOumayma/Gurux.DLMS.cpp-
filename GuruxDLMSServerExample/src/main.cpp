@@ -58,7 +58,6 @@
 #include "../../development/include/GXDLMSAssociationLogicalName.h"
 #include "../../development/include/GXDLMSAssociationShortName.h"
 
-
 int Start(int port, GX_TRACE_LEVEL trace)
 {
     int ret;
@@ -132,6 +131,7 @@ int main(int argc, char* argv[])
     strcpy(DATAFILE, argv[0]);
 #endif
 #if defined(_WIN32) || defined(_WIN64)//Windows includes
+
     char *p = _tcsrchr(DATAFILE, '\\');
     *p = '\0';
     strcpy_s(IMAGEFILE, DATAFILE);

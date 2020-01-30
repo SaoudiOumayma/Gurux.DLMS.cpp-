@@ -182,6 +182,8 @@ public:
         DLMS_AUTHENTICATION authentication,
         CGXByteBuffer& password);
 
+    void SetSecurity();
+
     /**
     * Get attribute access mode.
     *

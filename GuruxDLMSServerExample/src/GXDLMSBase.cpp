@@ -83,6 +83,8 @@
 #include "../../development/include/GXDLMSAssociationLogicalName.h"
 #include "../../development/include/GXDLMSAssociationShortName.h"
 #include "../../development/include/GXDLMSImageTransfer.h"
+#include "../../development/include/GXDLMSCompactData.h"
+#include "../../development/include/GXDLMSNotify.h"
 
 using namespace std;
 #if defined(_WIN32) || defined(_WIN64)//Windows
@@ -580,6 +582,33 @@ CGXDLMSIp4Setup* AddIp4Setup(CGXDLMSObjectCollection& items, std::string& addres
     return pIp4;
 }
 
+void CGXDLMSBase::SetSecurity()
+{
+    std::string k("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01", 16);
+    CGXByteBuffer key;
+    key.Set(k.data(), k.size());
+
+    std::string t("\x93\x15\x07\x00\x00\x00\x40\x03", 8);
+    CGXByteBuffer systemTitle;
+    systemTitle.Set(t.data(), t.size());
+
+    this->GetCiphering()->SetAuthenticationKey(key);
+    this->GetCiphering()->SetBlockCipherKey(key);
+    this->GetCiphering()->SetFrameCounter(1);
+    this->GetCiphering()->SetSecurity(DLMS_SECURITY_AUTHENTICATION_ENCRYPTION);
+    this->GetCiphering()->SetSecuritySuite(DLMS_SECURITY_SUITE_AES_GCM_128);
+    this->GetCiphering()->SetSystemTitle(systemTitle);
+}
+
+class Notify : public CGXDLMSNotify
+{
+public:
+    Notify(CGXCipher* cipher, bool ln, int logical, int physical, DLMS_INTERFACE_TYPE type) : CGXDLMSNotify(ln, logical, physical, type)
+    {
+        this->SetCipher(cipher);
+    }
+
+};
 /*
 * Generic initialize for all servers.
 */
@@ -594,6 +623,8 @@ int CGXDLMSBase::Init(int port, GX_TRACE_LEVEL trace)
     //Get local IP address.
     std::string address;
     GetIpAddress(address);
+
+    SetSecurity();
 
     unsigned long sn = 123456;
     CGXDLMSData* ldn = AddLogicalDeviceName(GetItems(), sn);
@@ -617,6 +648,8 @@ int CGXDLMSBase::Init(int port, GX_TRACE_LEVEL trace)
     pClock->SetDeviation(CGXDateTime::GetCurrentDeviation());
     GetItems().push_back(pClock);
     ///////////////////////////////////////////////////////////////////////
+
+    /*
     //Add profile generic (historical data) object.
     CGXDLMSProfileGeneric* profileGeneric = new CGXDLMSProfileGeneric("1.0.99.1.0.255");
     //Set capture period to 60 second.
@@ -656,6 +689,25 @@ int CGXDLMSBase::Init(int port, GX_TRACE_LEVEL trace)
     //Maximum row count.
     profileGeneric->SetEntriesInUse(rowCount);
     profileGeneric->SetProfileEntries(rowCount);
+    */
+    auto cf = new CGXDLMSCompactData("0.0.66.0.47.255");
+    CGXByteBuffer cf47;
+    cf47.Set("\x2F\x52\xC9\x08\xA7\x00\x11\x00\x00\x02\xE9\x06\x67\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\xFF", 29);
+    cf->SetBuffer(cf47);
+    cf->SetAccess(1, DLMS_ACCESS_MODE_READ);
+    cf->SetAccess(2, DLMS_ACCESS_MODE_READ);
+    cf->SetCaptureMethod(DLMS_CAPTURE_METHOD_IMPLICIT);
+    cf->SetDataType(2, DLMS_DATA_TYPE_OCTET_STRING);
+    GetItems().push_back(cf);
+
+    auto notify = std::make_unique<Notify>( GetCiphering(), true, 1, 1, DLMS_INTERFACE_TYPE_WRAPPER);
+
+    std::vector<CGXByteBuffer> reply;
+
+    tm t;
+    time_t time = ::time(nullptr);
+    gmtime_s(&t, &time);
+    notify->GenerateDataNotificationMessages(&t, cf47, reply);
 
     ///////////////////////////////////////////////////////////////////////
     //Add Auto connect object.

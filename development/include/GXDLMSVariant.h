@@ -81,6 +81,7 @@ struct dlmsVARIANT
 
 class CGXDLMSVariant : public dlmsVARIANT
 {
+public:
     static int Convert(CGXDLMSVariant* item, DLMS_DATA_TYPE type);
 public:
     void Clear();

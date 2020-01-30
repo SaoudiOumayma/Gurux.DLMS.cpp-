@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="DatagramStreamParser.cpp" />
+    <ClCompile Include="DlmsPushedPacket.cpp" />
+    <ClCompile Include="convert.cpp" />
+    <ClCompile Include="CompactFrameDecrypter.cpp" />
+    <ClCompile Include="CompactFrameEncrypter.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DatagramStreamParser.h" />
+    <ClInclude Include="DlmsPushedPacket.h" />
+    <ClInclude Include="IDatagramStreamParser.h" />
+    <ClInclude Include="INIReader.h" />
+    <ClInclude Include="cxxopts.hpp" />
+    <ClInclude Include="convert.h" />
+    <ClInclude Include="CompactFrameDecrypter.h" />
+    <ClInclude Include="CompactFrameEncrypter.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dlms.ini" />
+  </ItemGroup>
+</Project>

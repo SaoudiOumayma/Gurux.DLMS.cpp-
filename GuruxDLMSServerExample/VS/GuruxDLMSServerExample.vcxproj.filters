@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\README.md" />
+    <None Include="x64\Debug\dlms.ini" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\GXDLMSBase.h">

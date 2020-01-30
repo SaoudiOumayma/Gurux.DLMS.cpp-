@@ -583,12 +583,6 @@ int CGXCipher::Encrypt(
     CGXByteBuffer& plainText,
     CGXByteBuffer& encrypted)
 {
-#if defined(_WIN32) || defined(_WIN64) || defined(__linux__)//If Windows or Linux
-    printf("System title: %s\r\n", systemTitle.ToHexString().c_str());
-    printf("key: %s\r\n", key.ToHexString().c_str());
-    printf("Authentication Key: %s\r\n", m_AuthenticationKey.ToHexString().c_str());
-
-#endif //defined(_WIN32) || defined(_WIN64) || defined(__linux__)//If Windows or Linux
     unsigned short headerSize = 0;
     int ret;
     unsigned long tmp[61] = { 0 };
