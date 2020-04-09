@@ -43,7 +43,7 @@ void CGXCommunication::WriteValue(GX_TRACE_LEVEL trace, std::string line)
 {
     if (trace > GX_TRACE_LEVEL_WARNING)
     {
-        printf(line.c_str());
+        printf("%s",line.c_str());
     }
     GXHelpers::Write("LogFile.txt", line);
 }
@@ -803,7 +803,7 @@ int CGXCommunication::UpdateFrameCounter()
         {
             m_Parser->GetCiphering()->SetInvocationCounter(1 + d.GetValue().ToInteger());
         }
-        printf("Invocation counter: %d\r\n", m_Parser->GetCiphering()->GetInvocationCounter());
+        printf("Invocation counter: %li\r\n", m_Parser->GetCiphering()->GetInvocationCounter());
         reply.Clear();
         Disconnect();
         m_Parser->SetClientAddress(add);
@@ -829,14 +829,21 @@ int CGXCommunication::InitializeConnection()
     }
     std::vector<CGXByteBuffer> data;
     CGXReplyData reply;
+
     //Get meter's send and receive buffers size.
-    if ((ret = m_Parser->SNRMRequest(data)) != 0 ||
-        (ret = ReadDataBlock(data, reply)) != 0 ||
-        (ret = m_Parser->ParseUAResponse(reply.GetData())) != 0)
-    {
-        printf("SNRMRequest failed %d.\r\n", ret);
+    if ((ret = m_Parser->SNRMRequest(data)) != 0) {
+        printf("SNRMRequest failed %d.SNRMRequest(data)\r\n", ret);
         return ret;
-    }
+        }
+    if ((ret = ReadDataBlock(data, reply)) != 0) {
+        printf("SNRMRequest failed %d.ReadDataBlock\r\n", ret);
+        return ret;
+        }
+    if ((ret = m_Parser->ParseUAResponse(reply.GetData())) != 0) {
+        printf("SNRMRequest failed %d.ParseUAResponse(reply.GetData())\r\n", ret);
+        return ret;
+        }
+
     reply.Clear();
     if ((ret = m_Parser->AARQRequest(data)) != 0 ||
         (ret = ReadDataBlock(data, reply)) != 0 ||

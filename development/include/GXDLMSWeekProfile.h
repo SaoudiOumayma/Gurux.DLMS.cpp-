@@ -35,7 +35,7 @@
 #define GXDLMSWEEKPROFILE_H
 
 #include <string>
-#include "GXByteBuffer.h"
+#include "GXBytebuffer.h"
 
 class CGXDLMSWeekProfile
 {
