@@ -4,9 +4,9 @@ TARGET   = gurux.dlms.client.bin
 CC       = g++
 
 # compiling flags here
-CFLAGS   = -c
+CFLAGS   = -ggdb -c
 
-LINKER   = g++ -o
+LINKER   = g++ -ggdb -o
 
 # linking flags here
 LFLAGS   = -L../development/lib

@@ -44,25 +44,26 @@ static void ShowHelp()
     printf("GuruxDlmsSample -h [Meter IP Address] -p [Meter Port No] -c 16 -s 1 -r SN\r\n");
     printf(" -h \t host name or IP address.\r\n");
     printf(" -p \t port number or name (Example: 1000).\r\n");
-    printf(" -S [COM1:9600:8None1]\t serial port.");
-    printf(" -i IEC is a start protocol.\r\n");
+    printf(" -S [COM1:9600:8None1]\t serial port.\r\n");
+    printf(" -i \t IEC is a start protocol.\r\n");
     printf(" -a \t Authentication (None, Low, High, HighMd5, HighSha1, HighGmac, HighSha256).\r\n");
     printf(" -P \t Password for authentication.\r\n");
     printf(" -c \t Client address. (Default: 16)\r\n");
     printf(" -s \t Server address. (Default: 1)\r\n");
     printf(" -n \t Server address as serial number.\r\n");
-    printf(" -r [sn, sn]\t Short name or Logican Name (default) referencing is used.\r\n");
-    printf(" -w WRAPPER profile is used. HDLC is default.\r\n");
+    printf(" -f \t Formula to create address from serial number. (Default: SN%%10000+1000)\r\n");
+    printf(" -r [sn, ln]\t Short name or Logican Name (default) referencing is used.\r\n");
+    printf(" -w \t WRAPPER profile is used. HDLC is default.\r\n");
     printf(" -t Trace messages.\r\n");
     printf(" -g \"0.0.1.0.0.255:1; 0.0.1.0.0.255:2\" Get selected object(s) with given attribute index.\r\n");
-    printf(" -C \t Security Level. (None, Authentication, Encrypted, AuthenticationEncryption)");
-    printf(" -v \t Invocation counter data object Logical Name. Ex. 0.0.43.1.1.255");
-    printf(" -I \t Auto increase invoke ID");
-    printf(" -o \t Cache association view to make reading faster. Ex. -o C:\\device.xml");
-    printf(" -T \t System title that is used with chiphering. Ex -D 4775727578313233");
-    printf(" -A \t Authentication key that is used with chiphering. Ex -D D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF");
-    printf(" -B \t Block cipher key that is used with chiphering. Ex -D 000102030405060708090A0B0C0D0E0F");
-    printf(" -D \t Dedicated key that is used with chiphering. Ex -D 00112233445566778899AABBCCDDEEFF");
+    printf(" -C \t Security Level. (None, Authentication, Encrypted, AuthenticationEncryption)\r\n");
+    printf(" -v \t Invocation counter data object Logical Name. Ex. 0.0.43.1.1.255\r\n");
+    printf(" -I \t Auto increase invoke ID\r\n");
+    printf(" -o \t Cache association view to make reading faster. Ex. -o C:\\device.xml\r\n");
+    printf(" -T \t System title that is used with chiphering. Ex -D 4775727578313233\r\n");
+    printf(" -A \t Authentication key that is used with chiphering. Ex -D D0D1D2D3D4D5D6D7D8D9DADBDCDDDEDF\r\n");
+    printf(" -B \t Block cipher key that is used with chiphering. Ex -D 000102030405060708090A0B0C0D0E0F\r\n");
+    printf(" -D \t Dedicated key that is used with chiphering. Ex -D 00112233445566778899AABBCCDDEEFF\r\n");
     printf("Example:\r\n");
     printf("Read LG device using TCP/IP connection.\r\n");
     printf("GuruxDlmsSample -r SN -c 16 -s 1 -h [Meter IP Address] -p [Meter Port No]\r\n");
@@ -104,6 +105,7 @@ int main(int argc, char* argv[])
         int index, a, b, c, d, e, f;
         int opt = 0;
         int port = 0;
+        int serialNumber = -1;
         char* address = NULL;
         char* serialPort = NULL;
         bool iec = false;
@@ -114,8 +116,9 @@ int main(int argc, char* argv[])
         char* authenticationKey = NULL;
         char* blockCipherKey = NULL;
         char* dedicatedKey = NULL;
+        char* formula = (char *)"SN%10000+1000";
 
-        while ((opt = getopt(argc, argv, "h:p:c:s:r:iIt:a:wP:g:S:n:C:v:o:T:A:B:D:")) != -1)
+        while ((opt = getopt(argc, argv, "h:p:c:s:r:iIt:a:wP:g:S:n:C:f:v:o:T:A:B:D:")) != -1)
         {
             switch (opt)
             {
@@ -245,6 +248,9 @@ int main(int argc, char* argv[])
                 } while ((p = strchr(p, ',')) != NULL);
                 readObjects = optarg;
                 break;
+            case 'f':
+                formula = optarg;
+                break;
             case 'S':
                 serialPort = optarg;
                 break;
@@ -290,51 +296,53 @@ int main(int argc, char* argv[])
                 serverAddress = atoi(optarg);
                 break;
             case 'n':
-                serverAddress = CGXDLMSClient::GetServerAddress(atoi(optarg));
+                serialNumber = atoi(optarg);
                 break;
             case '?':
             {
-                if (optarg[0] == 'c') {
-                    printf("Missing mandatory client option.\n");
-                }
-                else if (optarg[0] == 's') {
-                    printf("Missing mandatory server option.\n");
-                }
-                else if (optarg[0] == 'h') {
-                    printf("Missing mandatory host name option.\n");
-                }
-                else if (optarg[0] == 'p') {
-                    printf("Missing mandatory port option.\n");
-                }
-                else if (optarg[0] == 'r') {
-                    printf("Missing mandatory reference option.\n");
-                }
-                else if (optarg[0] == 'a') {
-                    printf("Missing mandatory authentication option.\n");
-                }
-                else if (optarg[0] == 'S') {
-                    printf("Missing mandatory Serial port option.\n");
-                }
-                else if (optarg[0] == 'g') {
-                    printf("Missing mandatory OBIS code option.\n");
-                }
-                else if (optarg[0] == 'C') {
-                    printf("Missing mandatory Ciphering option.\n");
-                }
-                else if (optarg[0] == 'v') {
-                    printf("Missing mandatory invocation counter logical name option.\n");
-                }
-                else if (optarg[0] == 'T') {
-                    printf("Missing mandatory system title option.");
-                }
-                else if (optarg[0] == 'A') {
-                    printf("Missing mandatory authentication key option.");
-                }
-                else if (optarg[0] == 'B') {
-                    printf("Missing mandatory block cipher key option.");
-                }
-                else if (optarg[0] == 'D') {
-                    printf("Missing mandatory dedicated key option.");
+                if (optarg != nullptr) {
+                    if (optarg[0] == 'c') {
+                        printf("Missing mandatory client option.\n");
+                    }
+                    else if (optarg[0] == 's') {
+                        printf("Missing mandatory server option.\n");
+                    }
+                    else if (optarg[0] == 'h') {
+                        printf("Missing mandatory host name option.\n");
+                    }
+                    else if (optarg[0] == 'p') {
+                        printf("Missing mandatory port option.\n");
+                    }
+                    else if (optarg[0] == 'r') {
+                        printf("Missing mandatory reference option.\n");
+                    }
+                    else if (optarg[0] == 'a') {
+                        printf("Missing mandatory authentication option.\n");
+                    }
+                    else if (optarg[0] == 'S') {
+                        printf("Missing mandatory Serial port option.\n");
+                    }
+                    else if (optarg[0] == 'g') {
+                        printf("Missing mandatory OBIS code option.\n");
+                    }
+                    else if (optarg[0] == 'C') {
+                        printf("Missing mandatory Ciphering option.\n");
+                    }
+                    else if (optarg[0] == 'v') {
+                        printf("Missing mandatory invocation counter logical name option.\n");
+                    }
+                    else if (optarg[0] == 'T') {
+                        printf("Missing mandatory system title option.");
+                    }
+                    else if (optarg[0] == 'A') {
+                        printf("Missing mandatory authentication key option.");
+                    }
+                    else if (optarg[0] == 'B') {
+                        printf("Missing mandatory block cipher key option.");
+                    }
+                    else if (optarg[0] == 'D') {
+                        printf("Missing mandatory dedicated key option.");
+                    }
                 }
                 else
                 {
@@ -347,6 +355,10 @@ int main(int argc, char* argv[])
                 ShowHelp();
                 return 1;
             }
+        }
+        if (serialNumber > 0) 
+        {
+            serverAddress = CGXDLMSClient::GetServerAddress(serialNumber, formula);
         }
         CGXDLMSSecureClient cl(useLogicalNameReferencing, clientAddress, serverAddress, authentication, password, interfaceType);
         cl.GetCiphering()->SetSecurity(security);
@@ -461,7 +473,7 @@ int main(int argc, char* argv[])
                         if ((ret = comm.Read(obj, index, value)) != DLMS_ERROR_CODE_OK)
                         {
 #if _MSC_VER > 1000
-                            sprintf_s(buff, 100, "Error! Index: %d %s\r\n", index, CGXDLMSConverter::GetErrorMessage(ret));
+                            sprintf_s(buff, 200, "Error! Index: %d %s\r\n", index, CGXDLMSConverter::GetErrorMessage(ret));
 #else
                             sprintf(buff, "Error! Index: %d read failed: %s\r\n", index, CGXDLMSConverter::GetErrorMessage(ret));
 #endif
@@ -471,9 +483,9 @@ int main(int argc, char* argv[])
                         else
                         {
 #if _MSC_VER > 1000
-                            sprintf_s(buff, 100, "Index: %d Value: ", index);
+                            sprintf_s(buff, 100, "Object: %s%d Value: ", index);
 #else
-                            sprintf(buff, "Index: %d Value: ", index);
+                            sprintf(buff, "Object: %s%d Value: ", str.data(), index);
 #endif
                             comm.WriteValue(trace, buff);
                             comm.WriteValue(trace, value.c_str());
@@ -483,9 +495,9 @@ int main(int argc, char* argv[])
                     else
                     {
 #if _MSC_VER > 1000
-                        sprintf_s(buff, 100, "Unknown object: %s", str.c_str());
+                        snprintf_s(buff, 100, "Unknown object: %s", str.c_str());
 #else
-                        sprintf(buff, 100, "Unknown object: %s", str.c_str());
+                        snprintf(buff, 100, "Unknown object: %s", str.c_str());
 #endif
                         str = buff;
                         comm.WriteValue(GX_TRACE_LEVEL_ERROR, str);

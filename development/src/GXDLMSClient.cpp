@@ -1333,8 +1333,9 @@ int CGXDLMSClient::ReadList(
             sn += (it->second - 1) * 8;
             bb.SetUInt16(sn);
         }
+        // NULL istead of new CGXBytesBuffer() caused SIGSEGV
         CGXDLMSSNParameters p(&m_Settings, DLMS_COMMAND_READ_REQUEST,
-            (unsigned long)list.size(), 0xFF, &bb, NULL);
+            (unsigned long)list.size(), 0xFF, &bb, new CGXByteBuffer());
         ret = CGXDLMS::GetSnMessages(p, reply);
     }
     return ret;

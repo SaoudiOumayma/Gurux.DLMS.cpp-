@@ -36,7 +36,7 @@
 #define GXDLMSSEASONPROFILE_H
 
 #include "GXDateTime.h"
-#include "GXByteBuffer.h"
+#include "GXBytebuffer.h"
 
 class CGXDLMSSeasonProfile
 {
