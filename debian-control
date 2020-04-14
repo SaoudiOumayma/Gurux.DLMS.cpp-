@@ -1,0 +1,8 @@
+Section: other
+Priority: optional
+Maintainer: Petr Bravenec <petr.bravenec@hobrasoft.cz>
+Homepage: <https>
+Package: dlms-client
+Architecture: AAAA
+Version: XXXX
+Description: Reads values from DLMS metering device
