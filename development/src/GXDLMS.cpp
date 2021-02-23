@@ -1011,7 +1011,9 @@ int CGXDLMS::GetLNPdu(
         }
 
         // Add attribute descriptor.
-        reply.Set(p.GetAttributeDescriptor());
+        if (!((p.GetCommand() == DLMS_COMMAND_SET_REQUEST) && (p.GetRequestType() == 3)))
+            reply.Set(p.GetAttributeDescriptor());
+
         // If multiple blocks.
         if (p.IsMultipleBlocks() && (p.GetSettings()->GetNegotiatedConformance() & DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER) == 0)
         {
@@ -1063,7 +1065,7 @@ int CGXDLMS::GetLNPdu(
                 len -= GXHelpers::GetObjectCountSizeInBytes(len);
             }
             GXHelpers::SetObjectCount(len, reply);
-            reply.Set(p.GetData(), 0, len);
+            reply.Set(p.GetData(), p.GetData()->GetPosition(), len);
         }
         // Add data that fits to one block.
         if (len == 0)
