@@ -3634,18 +3634,15 @@ int CGXDLMS::GetValueFromData(CGXDLMSSettings& settings, CGXReplyData& reply)
         }
         else
         {
-            if (value.Arr.size() != 0)
+            if (reply.GetValue().vt == DLMS_DATA_TYPE_NONE)
             {
-                if (reply.GetValue().vt == DLMS_DATA_TYPE_NONE)
-                {
-                    reply.SetValue(value);
-                }
-                else
-                {
-                    CGXDLMSVariant tmp = reply.GetValue();
-                    tmp.Arr.insert(tmp.Arr.end(), value.Arr.begin(), value.Arr.end());
-                    reply.SetValue(tmp);
-                }
+                reply.SetValue(value);
+            }
+            else if (value.Arr.size() != 0)
+            {
+                CGXDLMSVariant tmp = reply.GetValue();
+                tmp.Arr.insert(tmp.Arr.end(), value.Arr.begin(), value.Arr.end());
+                reply.SetValue(tmp);
             }
             reply.SetReadPosition(reply.GetData().GetPosition());
             // Element count.
