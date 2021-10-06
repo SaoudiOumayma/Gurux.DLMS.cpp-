@@ -530,7 +530,7 @@ int CGXDLMSProfileGeneric::Capture(CGXDLMSServer* server)
             values.push_back(tmp.GetValue());
         }
         // Remove first items if buffer is full.
-        if (GetProfileEntries() == GetBuffer().size())
+        if (!m_Buffer.empty() && GetProfileEntries() == GetBuffer().size())
         {
             m_Buffer.pop_back();
         }
