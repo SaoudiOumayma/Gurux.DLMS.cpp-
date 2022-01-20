@@ -426,7 +426,8 @@ public:
     /////////////////////////////////////////////////////////////////////////////
     static int HandleMethodResponse(
         CGXDLMSSettings& settings,
-        CGXReplyData& data);
+        CGXReplyData& data,
+        unsigned long index);
 
     /////////////////////////////////////////////////////////////////////////////
     // Handle push and get data from block and/or update error status.

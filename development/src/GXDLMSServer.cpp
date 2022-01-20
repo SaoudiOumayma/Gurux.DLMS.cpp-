@@ -840,15 +840,35 @@ int CGXDLMSServer::HandleGeneralBlockTransfer(
     CGXByteBuffer& data,
     unsigned char cipheredCommand)
 {
+    unsigned char bc;
+    unsigned short blockNumber = 0, blockNumberAck = 0;
+    if (!sr.IsStreaming())
+    {
+        unsigned long len;
+        //BlockControl
+        data.GetUInt8(&bc);
+        //Block number.
+        data.GetUInt16(&blockNumber);
+        //Block number acknowledged.
+        data.GetUInt16(&blockNumberAck);
+        GXHelpers::GetObjectCount(data, len);
+        if (len > data.Available())
+        {
+            GenerateConfirmedServiceError(
+                DLMS_CONFIRMED_SERVICE_ERROR_INITIATE_ERROR,
+                DLMS_SERVICE_ERROR_SERVICE,
+                DLMS_SERVICE_UNSUPPORTED, m_ReplyData);
+        }
+    }
     if (m_Transaction != NULL)
     {
-        if (m_Transaction->GetCommand() == DLMS_COMMAND_GET_REQUEST)
+        if (m_Transaction->GetCommand() == DLMS_COMMAND_GET_REQUEST || m_Transaction->GetCommand() == DLMS_COMMAND_METHOD_REQUEST)
         {
             // Get request for next data block
             if (sr.GetCount() == 0)
             {
                 m_Settings.SetBlockNumberAck(m_Settings.GetBlockNumberAck() + 1);
-                sr.SetCount(m_Settings.GetWindowSize());
+                sr.SetCount((bc & 0x3F));
             }
             CGXDLMSLNCommandHandler::GetRequestNextDataBlock(m_Settings, 0,
                 this, data, &m_ReplyData, NULL, true, cipheredCommand);
@@ -860,86 +880,51 @@ int CGXDLMSServer::HandleGeneralBlockTransfer(
             {
                 sr.SetCount(0);
             }
+            //Save server GBT window size to settings because sr is lost.
+            if (m_Settings.IsServer())
+            {
+                m_Settings.SetCount(sr.GetCount());
+            }
         }
         else
         {
-            // BlockControl
-            unsigned char bc;
-            data.GetUInt8(&bc);
-            // Block number.
-            unsigned short blockNumber, blockNumberAck;
-            data.GetUInt16(&blockNumber);
-            // Block number acknowledged.
-            data.GetUInt16(&blockNumberAck);
-            unsigned long len;
-            GXHelpers::GetObjectCount(data, len);
-            if (len > data.GetSize() - data.GetPosition())
+            m_Transaction->GetData().Set(&data);
+            // Send ACK.
+            unsigned char igonoreAck = (bc & 0x40) != 0 &&
+                (blockNumberAck * m_Settings.GetGbtWindowSize()) + 1 > blockNumber;
+            int windowSize = m_Settings.GetGbtWindowSize();
+            int bn = m_Settings.GetBlockIndex();
+            if ((bc & 0x80) != 0)
             {
-                GenerateConfirmedServiceError(
-                    DLMS_CONFIRMED_SERVICE_ERROR_INITIATE_ERROR,
-                    DLMS_SERVICE_ERROR_SERVICE,
-                    DLMS_SERVICE_UNSUPPORTED, m_ReplyData);
+                HandleCommand(m_Transaction->GetCommand(),
+                    m_Transaction->GetData(), sr, cipheredCommand);
+                delete m_Transaction;
+                m_Transaction = NULL;
+                igonoreAck = false;
+                windowSize = 1;
             }
-            else
+            if (igonoreAck)
             {
-                m_Transaction->GetData().Set(&data);
-                // Send ACK.
-                unsigned char igonoreAck = (bc & 0x40) != 0 &&
-                    (blockNumberAck * m_Settings.GetWindowSize()) + 1 > blockNumber;
-                int windowSize = m_Settings.GetWindowSize();
-                int bn = m_Settings.GetBlockIndex();
-                if ((bc & 0x80) != 0)
-                {
-                    HandleCommand(m_Transaction->GetCommand(),
-                        m_Transaction->GetData(), sr, cipheredCommand);
-                    delete m_Transaction;
-                    m_Transaction = NULL;
-                    igonoreAck = false;
-                    windowSize = 1;
-                }
-                if (igonoreAck)
-                {
-                    return false;
-                }
-                m_ReplyData.SetUInt8(DLMS_COMMAND_GENERAL_BLOCK_TRANSFER);
-                m_ReplyData.SetUInt8((0x80 | windowSize));
-                m_Settings.SetBlockIndex(m_Settings.GetBlockIndex() + 1);
-                m_ReplyData.SetUInt16(bn);
-                m_ReplyData.SetUInt16(blockNumber);
-                m_ReplyData.SetUInt8(0);
+                return false;
             }
+            m_ReplyData.SetUInt8(DLMS_COMMAND_GENERAL_BLOCK_TRANSFER);
+            m_ReplyData.SetUInt8((0x80 | windowSize));
+            m_Settings.SetBlockIndex(m_Settings.GetBlockIndex() + 1);
+            m_ReplyData.SetUInt16(bn);
+            m_ReplyData.SetUInt16(blockNumber);
+            m_ReplyData.SetUInt8(0);
         }
     }
     else
     {
-        // BlockControl
-        unsigned char bc;
-        unsigned short blockNumber, blockNumberAck;
         data.GetUInt8(&bc);
-        // Block number.
-        data.GetUInt16(&blockNumber);
-        // Block number acknowledged.
-        data.GetUInt16(&blockNumberAck);
-        unsigned long len;
-        GXHelpers::GetObjectCount(data, len);
-        if (len > data.GetSize() - data.GetPosition())
-        {
-            GenerateConfirmedServiceError(
-                DLMS_CONFIRMED_SERVICE_ERROR_INITIATE_ERROR,
-                DLMS_SERVICE_ERROR_SERVICE, DLMS_SERVICE_UNSUPPORTED, m_ReplyData);
-        }
-        else
-        {
-            unsigned char ch;
-            data.GetUInt8(&ch);
-            m_Transaction = new CGXDLMSLongTransaction((DLMS_COMMAND)ch, data);
-            m_ReplyData.SetUInt8(DLMS_COMMAND_GENERAL_BLOCK_TRANSFER);
-            m_ReplyData.SetUInt8((0x80 | m_Settings.GetWindowSize()));
-            m_ReplyData.SetUInt16(blockNumber);
-            ++blockNumberAck;
-            m_ReplyData.SetUInt16(blockNumberAck);
-            m_ReplyData.SetUInt8(0);
-        }
+        m_Transaction = new CGXDLMSLongTransaction((DLMS_COMMAND)bc, data);
+        m_ReplyData.SetUInt8(DLMS_COMMAND_GENERAL_BLOCK_TRANSFER);
+        m_ReplyData.SetUInt8((0x80 | m_Settings.GetGbtWindowSize()));
+        m_ReplyData.SetUInt16(blockNumber);
+        ++blockNumberAck;
+        m_ReplyData.SetUInt16(blockNumberAck);
+        m_ReplyData.SetUInt8(0);
     }
     return 0;
 }

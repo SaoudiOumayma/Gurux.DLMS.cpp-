@@ -132,9 +132,9 @@ public:
         list[DLMS_COMMAND_METHOD_REQUEST << 8 | DLMS_ACTION_REQUEST_TYPE_WITH_BLOCK] = "ActionRequestWithListAndBlock";
         list[DLMS_COMMAND_METHOD_RESPONSE] = "ActionResponse";
         list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_NORMAL] = "ActionResponseNormal";
-        list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_WITH_FIRST_BLOCK] = "ActionResponseWithFirstBlock";
+        list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK] = "ActionResponseWithPBlock";
         list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_WITH_LIST] = "ActionResponseWithList";
-        list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK] = "ActionResponseWithBlock";
+        list[(DLMS_COMMAND_METHOD_RESPONSE << 8) | DLMS_ACTION_RESPONSE_TYPE_NEXT_BLOCK] = "ActionResponseNextBlock";
         list[DLMS_COMMAND_DATA_NOTIFICATION] = "DataNotification";
         list[DLMS_COMMAND_GET_RESPONSE] = "GetResponse";
         list[DLMS_COMMAND_GET_RESPONSE << 8 | DLMS_GET_COMMAND_TYPE_NORMAL] = "GetResponseNormal";

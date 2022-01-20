@@ -135,9 +135,9 @@ public:
         list[DLMS_COMMAND_METHOD_REQUEST << 8 | DLMS_ACTION_REQUEST_TYPE_WITH_BLOCK] = "action-request-with-with-list-and-block";
         list[DLMS_COMMAND_METHOD_RESPONSE] = "action-response";
         list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_NORMAL] = "action-response-normal";
-        list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_WITH_FIRST_BLOCK] = "action-response-with-first-block";
+        list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK] = "action-response-with-pblock";
         list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_WITH_LIST] = "action-response-with-list";
-        list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK] = "action-response-next-pblock";
+        list[DLMS_COMMAND_METHOD_RESPONSE << 8 | DLMS_ACTION_RESPONSE_TYPE_NEXT_BLOCK] = "action-response-next-pblock";
         list[DLMS_TRANSLATOR_TAGS_SINGLE_RESPONSE] = "single-response";
         list[DLMS_COMMAND_DATA_NOTIFICATION] = "data-notification";
         list[DLMS_COMMAND_GET_RESPONSE] = "get-response";

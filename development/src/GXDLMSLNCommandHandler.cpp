@@ -271,7 +271,7 @@ int CGXDLMSLNCommandHandler::GetRequestNextDataBlock(
         streaming ? DLMS_COMMAND_GENERAL_BLOCK_TRANSFER : DLMS_COMMAND_GET_RESPONSE,
         2, NULL, &bb, DLMS_ERROR_CODE_OK, cipheredCommand);
     p.SetStreaming(streaming);
-    p.SetWindowSize(settings.GetWindowSize());
+    p.SetWindowSize(settings.GetGbtWindowSize());
     // If m_Transaction is not in progress.
     if (server->m_Transaction == NULL)
     {
@@ -494,7 +494,7 @@ int CGXDLMSLNCommandHandler::HandleGetRequest(
     unsigned char cipheredCommand)
 {
     // Return error if connection is not established.
-    if (xml == NULL && (settings.GetConnected() && DLMS_CONNECTION_STATE_DLMS) == 0 &&
+    if (xml == NULL && (settings.GetConnected() & DLMS_CONNECTION_STATE_DLMS) == 0 &&
         cipheredCommand == DLMS_COMMAND_NONE)
     {
         server->GenerateConfirmedServiceError(DLMS_CONFIRMED_SERVICE_ERROR_INITIATE_ERROR,
@@ -1018,7 +1018,7 @@ int CGXDLMSLNCommandHandler::HandleSetRequest(
     CGXDataInfo i;
     CGXByteBuffer bb;
     // Return error if connection is not established.
-    if (xml == NULL && (settings.GetConnected() && DLMS_CONNECTION_STATE_DLMS) == 0)
+    if (xml == NULL && (settings.GetConnected() & DLMS_CONNECTION_STATE_DLMS) == 0)
     {
         server->GenerateConfirmedServiceError(DLMS_CONFIRMED_SERVICE_ERROR_INITIATE_ERROR,
             DLMS_SERVICE_ERROR_SERVICE, DLMS_SERVICE_UNSUPPORTED,
@@ -1277,7 +1277,7 @@ int CGXDLMSLNCommandHandler::MethodRequestNextBlock(
         NULL, &bb, DLMS_ERROR_CODE_OK, cipheredCommand);
 
     p.SetStreaming(streaming);
-    p.SetWindowSize(settings.GetWindowSize());
+    p.SetWindowSize(settings.GetGbtWindowSize());
     //If transaction is not in progress.
     if (&server->m_Transaction == NULL)
     {
@@ -1357,7 +1357,6 @@ int CGXDLMSLNCommandHandler::HandleMethodRequest(
     CGXDLMSTranslatorStructure* xml,
     unsigned char cipheredCommand)
 {
-    CGXDLMSValueEventArg* e = NULL;
     int ret;
     unsigned char invokeId, type;
     // Get type.

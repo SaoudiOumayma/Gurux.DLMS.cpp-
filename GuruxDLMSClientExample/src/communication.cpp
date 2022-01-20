@@ -1084,7 +1084,7 @@ int CGXCommunication::ReadDLMSPacket(CGXByteBuffer& data, CGXReplyData& reply)
     CGXByteBuffer bb;
     std::string tmp;
     CGXReplyData notify;
-    if (data.GetSize() == 0)
+    if (data.GetSize() == 0 && !reply.IsStreaming())
     {
         return DLMS_ERROR_CODE_OK;
     }
@@ -1199,25 +1199,29 @@ int CGXCommunication::ReadDataBlock(std::vector<CGXByteBuffer>& data, CGXReplyDa
     //Send data.
     for (std::vector<CGXByteBuffer>::iterator it = data.begin(); it != data.end(); ++it)
     {
+        reply.Clear();
         //Send data.
         if ((ret = ReadDLMSPacket(*it, reply)) != DLMS_ERROR_CODE_OK)
         {
-            return ret;
+            break;
         }
         while (reply.IsMoreData())
         {
             bb.Clear();
-            if ((ret = m_Parser->ReceiverReady(reply.GetMoreData(), bb)) != 0)
+            if (!reply.IsStreaming())
             {
-                return ret;
+                if ((ret = m_Parser->ReceiverReady(reply.GetMoreData(), bb)) != 0)
+                {
+                    break;
+                }
             }
             if ((ret = ReadDLMSPacket(bb, reply)) != DLMS_ERROR_CODE_OK)
             {
-                return ret;
+                break;
             }
         }
     }
-    return DLMS_ERROR_CODE_OK;
+    return ret;
 }
 
 //Get Association view.

@@ -158,6 +158,7 @@
     <ClCompile Include="..\src\GXDLMSArbitrator.cpp" />
     <ClCompile Include="..\src\GXDLMSCertificateInfo.cpp" />
     <ClCompile Include="..\src\GXDLMSCharge.cpp" />
+    <ClCompile Include="..\src\GXDLMSCommunicationPortProtection.cpp" />
     <ClCompile Include="..\src\GXDLMSCompactData.cpp" />
     <ClCompile Include="..\src\GXDLMSCredit.cpp" />
     <ClCompile Include="..\src\GXDLMSGSMCellInfo.cpp" />
@@ -215,6 +216,7 @@
     <ClCompile Include="..\src\GXDLMSModemInitialisation.cpp" />
     <ClCompile Include="..\src\GXDLMSMonitoredValue.cpp" />
     <ClCompile Include="..\src\GXDLMSNotify.cpp" />
+    <ClCompile Include="..\src\GXDLMSNtpSetup.cpp" />
     <ClCompile Include="..\src\GXDLMSObject.cpp" />
     <ClCompile Include="..\src\GXDLMSObjectCollection.cpp" />
     <ClCompile Include="..\src\GXDLMSObjectDefinition.cpp" />
@@ -320,6 +322,7 @@
     <ClInclude Include="..\include\GXDLMSCharge.h" />
     <ClInclude Include="..\include\GXDLMSClient.h" />
     <ClInclude Include="..\include\GXDLMSClock.h" />
+    <ClInclude Include="..\include\GXDLMSCommunicationPortProtection.h" />
     <ClInclude Include="..\include\GXDLMSCompactData.h" />
     <ClInclude Include="..\include\GXDLMSConnectionEventArgs.h" />
     <ClInclude Include="..\include\GXDLMSContextType.h" />
@@ -362,6 +365,7 @@
     <ClInclude Include="..\include\GXDLMSModemInitialisation.h" />
     <ClInclude Include="..\include\GXDLMSMonitoredValue.h" />
     <ClInclude Include="..\include\GXDLMSNotify.h" />
+    <ClInclude Include="..\include\GXDLMSNtpSetup.h" />
     <ClInclude Include="..\include\GXDLMSObject.h" />
     <ClInclude Include="..\include\GXDLMSObjectCollection.h" />
     <ClInclude Include="..\include\GXDLMSObjectDefinition.h" />

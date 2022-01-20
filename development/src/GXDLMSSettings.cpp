@@ -64,7 +64,7 @@ CGXDLMSSettings::CGXDLMSSettings(bool isServer) :
     m_UseUtc2NormalTime = false;
     m_DateTimeSkips = DATETIME_SKIPS_NONE;
     m_BlockNumberAck = 0;
-    m_WindowSize = 1;
+    m_GbtWindowSize = 1;
     m_AutoIncreaseInvokeID = false;
     m_ExpectedInvocationCounter = 0;
     m_ExpectedSecurityPolicy = 0xFF;
@@ -586,7 +586,7 @@ void CGXDLMSSettings::SetProtocolVersion(const char* value)
     }
     if (value != NULL)
     {
-        short len = (short) strlen(value);
+        short len = (short)strlen(value);
         m_ProtocolVersion = new char[len + 1];
         memcpy(m_ProtocolVersion, value, len);
         m_ProtocolVersion[len] = 0;
@@ -677,4 +677,44 @@ void CGXDLMSSettings::SetAutoIncreaseInvokeID(bool value)
 void CGXDLMSSettings::AddAllocateObject(CGXDLMSObject* pObj)
 {
     m_AllocatedObjects.push_back(pObj);
+}
+
+int CGXDLMSSettings::GetBlockNumberAck()
+{
+    return m_BlockNumberAck;
+}
+
+void CGXDLMSSettings::SetBlockNumberAck(int value)
+{
+    m_BlockNumberAck = value;
+}
+
+unsigned char CGXDLMSSettings::GetGbtWindowSize()
+{
+    return m_GbtWindowSize;
+}
+
+void CGXDLMSSettings::SetGbtWindowSize(unsigned char value)
+{
+    m_GbtWindowSize = value;
+}
+
+unsigned char CGXDLMSSettings::GetCommand()
+{
+    return m_Command;
+}
+
+void CGXDLMSSettings::SetCommand(unsigned char value)
+{
+    m_Command = value;
+}
+
+unsigned char CGXDLMSSettings::GetCommandType()
+{
+    return m_CommandType;
+}
+
+void CGXDLMSSettings::SetCommandType(unsigned char value)
+{
+    m_CommandType = value;
 }

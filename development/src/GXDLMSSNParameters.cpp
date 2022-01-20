@@ -50,6 +50,10 @@ CGXDLMSSNParameters::CGXDLMSSNParameters(CGXDLMSSettings* settings,
     m_Data = data;
     m_MultipleBlocks = false;
     m_Time = 0;
+    if (settings != NULL) 
+    {
+        settings->SetCommand(command);
+    }
 }
 
 CGXDLMSSettings* CGXDLMSSNParameters::GetSettings()

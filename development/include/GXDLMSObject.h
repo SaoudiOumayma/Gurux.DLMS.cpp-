@@ -54,6 +54,7 @@ class CGXDLMSObject : public IGXDLMSBase
     friend class CGXDLMSObjectFactory;
     friend class CGXDLMSAssociationLogicalName;
     friend class CGXDLMSAssociationShortName;
+    friend class CGXDLMSProfileGeneric;
 
     CGXAttributeCollection m_Attributes;
     CGXAttributeCollection m_MethodAttributes;

@@ -68,6 +68,10 @@ static void ShowHelp()
     printf(" -D \t Dedicated key that is used with chiphering. Ex -D 00112233445566778899AABBCCDDEEFF");
     printf(" -i \t Used communication interface. Ex. -i WRAPPER.");
     printf(" -m \t Used PLC MAC address. Ex. -m 1.");
+    printf(" -W \t General Block Transfer window size.");
+    printf(" -w \t HDLC Window size. Default is 1");
+    printf(" -f \t HDLC Frame size. Default is 128");
+    printf(" -L \t Manufacturer ID (Flag ID) is used to use manufacturer depending functionality. -L LGZ");
     printf("Example:\n");
     printf("Read LG device using TCP/IP connection.\n");
     printf("GuruxDlmsSample -r SN -c 16 -s 1 -h [Meter IP Address] -p [Meter Port No]\n");
@@ -119,7 +123,12 @@ int main(int argc, char* argv[])
         char* blockCipherKey = NULL;
         char* dedicatedKey = NULL;
         uint16_t macDestinationAddress;
-        while ((opt = getopt(argc, argv, "h:p:c:s:r:i:It:a:P:g:S:n:C:v:o:T:A:B:D:m:l:")) != -1)
+        unsigned char gbtWindowSize = 1;
+        unsigned char windowSize = 1;
+        uint16_t maxInfo = 128;
+        char* manufacturerId = NULL;
+
+        while ((opt = getopt(argc, argv, "h:p:c:s:r:i:It:a:P:g:S:n:C:v:o:T:A:B:D:m:l:W:w:f:L:")) != -1)
         {
             switch (opt)
             {
@@ -186,6 +195,7 @@ int main(int argc, char* argv[])
                     printf("Invalid interface option '%s'. (HDLC, WRAPPER, HdlcModeE, Plc, PlcHdlc)", optarg);
                     return 1;
                 }
+                break;
             case 'I':
                 // AutoIncreaseInvokeID.
                 autoIncreaseInvokeID = true;
@@ -321,6 +331,18 @@ int main(int argc, char* argv[])
             case 'm':
                 macDestinationAddress = atoi(optarg);
                 break;
+            case 'W':
+                gbtWindowSize = atoi(optarg);
+                break;
+            case 'w':
+                windowSize = atoi(optarg);
+                break;
+            case 'f':
+                maxInfo = atoi(optarg);
+                break;
+            case 'L':
+                manufacturerId = optarg;
+                break;
             case '?':
             {
                 if (optarg[0] == 'c') {
@@ -380,6 +402,13 @@ int main(int argc, char* argv[])
         CGXDLMSSecureClient cl(useLogicalNameReferencing, clientAddress, serverAddress, authentication, password, interfaceType);
         cl.GetCiphering()->SetSecurity(security);
         cl.SetAutoIncreaseInvokeID(autoIncreaseInvokeID);
+        cl.SetGbtWindowSize(gbtWindowSize);
+        cl.GetHdlcSettings().SetWindowSizeRX(windowSize);
+        cl.GetHdlcSettings().SetWindowSizeTX(windowSize);
+        cl.GetHdlcSettings().SetMaxInfoRX(maxInfo);
+        cl.GetHdlcSettings().SetMaxInfoTX(maxInfo);
+        cl.GetHdlcSettings().SetMaxInfoTX(maxInfo);
+        cl.SetManufacturerId(manufacturerId);
         CGXByteBuffer bb;
         if (systemTitle != NULL)
         {
@@ -464,7 +493,7 @@ int main(int argc, char* argv[])
             if (ret == 0 && !read)
             {
                 ret = comm.GetAssociationView();
-            }
+        }
             if (ret == 0)
             {
                 std::string str;
@@ -476,7 +505,7 @@ int main(int argc, char* argv[])
                     if (p != readObjects)
                     {
                         ++p;
-                    }
+                }
                     str.clear();
                     p2 = strchr(p, ':');
                     ++p2;
@@ -522,21 +551,21 @@ int main(int argc, char* argv[])
                         str = buff;
                         comm.WriteValue(GX_TRACE_LEVEL_ERROR, str);
                     }
-                } while ((p = strchr(p, ',')) != NULL);
-                //Close connection.
-                comm.Close();
-                if (outputFile != NULL && ret == 0)
-                {
-                    ret = cl.GetObjects().Save(outputFile);
-                }
+            } while ((p = strchr(p, ',')) != NULL);
+            //Close connection.
+            comm.Close();
+            if (outputFile != NULL && ret == 0)
+            {
+                ret = cl.GetObjects().Save(outputFile);
             }
-        }
+    }
+}
         else {
             ret = comm.ReadAll(outputFile);
         }
         //Close connection.
         comm.Close();
-    }
+}
 #if defined(_WIN32) || defined(_WIN64)//Windows
     WSACleanup();
 #if _MSC_VER > 1400

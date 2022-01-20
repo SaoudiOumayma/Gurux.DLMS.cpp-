@@ -69,7 +69,7 @@ http://www.gurux.fi/Gurux.DLMS.Objects.GXDLMSSecuritySetup
 */
 class CGXDLMSSecuritySetup : public CGXDLMSObject
 {
-    unsigned char m_SecurityPolicy;
+    DLMS_SECURITY_POLICY m_SecurityPolicy;
     DLMS_SECURITY_SUITE m_SecuritySuite;
     CGXByteBuffer m_ServerSystemTitle;
     CGXByteBuffer m_ClientSystemTitle;
@@ -85,14 +85,16 @@ public:
     //LN Constructor.
     CGXDLMSSecuritySetup(std::string ln);
 
-    //Use DLMS_SECURITY_POLICY for version 0 and DLMS_SECURITY_POLICY1 for version 1.
-    unsigned char GetSecurityPolicy();
+    //Used security policy.
+    DLMS_SECURITY_POLICY GetSecurityPolicy();
 
-    //Use DLMS_SECURITY_POLICY for version 0 and DLMS_SECURITY_POLICY1 for version 1.
-    void SetSecurityPolicy(unsigned char value);
+    //Used security policy.
+    void SetSecurityPolicy(DLMS_SECURITY_POLICY value);
 
+    //Used security suite.
     DLMS_SECURITY_SUITE GetSecuritySuite();
 
+    //Used security suite.
     void SetSecuritySuite(DLMS_SECURITY_SUITE value);
 
     CGXByteBuffer GetClientSystemTitle();
@@ -108,6 +110,72 @@ public:
 
     // Returns amount of methods.
     int GetMethodCount();
+
+    //Imports an X.509 v3 certificate of a public key.
+    int ImportCertificate(
+        CGXDLMSClient* client,
+        CGXByteBuffer& key,
+        std::vector<CGXByteBuffer>& reply);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// Exports an X.509 v3 certificate from the server using entity information.
+    /// 
+    /// client: DLMS client that is used to generate action.
+    /// entity: Certificate entity.
+    /// type: Certificate type.
+    /// systemTitle: System title.
+    /// Returns Generated action.
+    /////////////////////////////////////////////////////////////////////////
+    int ExportCertificateByEntity(
+        CGXDLMSClient* client,
+        DLMS_CERTIFICATE_ENTITY entity,
+        DLMS_CERTIFICATE_TYPE type,
+        CGXByteBuffer& systemTitle,
+        std::vector<CGXByteBuffer>& reply);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// Exports an X.509 v3 certificate from the server using serial information.
+    /// 
+    /// client: DLMS client that is used to generate action.
+    /// serialNumber: Serial number.
+    /// issuer: Issuer
+    /// Returns Generated action.
+    /////////////////////////////////////////////////////////////////////////
+    int ExportCertificateBySerial(
+        CGXDLMSClient* client,
+        CGXByteBuffer& serialNumber,
+        CGXByteBuffer& issuer,
+        std::vector<CGXByteBuffer>& reply);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// Removes X.509 v3 certificate from the server using entity.
+    /// 
+    /// client: DLMS client that is used to generate action.
+    /// entity: Certificate entity type.
+    /// type: Certificate type.
+    /// systemTitle: System title.
+    /// Returns Generated action.
+    /////////////////////////////////////////////////////////////////////////
+    int RemoveCertificateByEntity(
+        CGXDLMSClient* client,
+        DLMS_CERTIFICATE_ENTITY entity,
+        DLMS_CERTIFICATE_TYPE type,
+        CGXByteBuffer& systemTitle,
+        std::vector<CGXByteBuffer>& reply);
+
+    /////////////////////////////////////////////////////////////////////////
+    /// Removes X.509 v3 certificate from the server using serial number.
+    /// 
+    /// client: DLMS client that is used to generate action.
+    /// serialNumber: Serial number.
+    /// issuer: Issuer.
+    /// Returns Generated action.
+    /////////////////////////////////////////////////////////////////////////
+    int RemoveCertificateBySerial(
+        CGXDLMSClient* client,
+        CGXByteBuffer& serialNumber,
+        CGXByteBuffer& issuer,
+        std::vector<CGXByteBuffer>& reply);
 
     int Invoke(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e);
 

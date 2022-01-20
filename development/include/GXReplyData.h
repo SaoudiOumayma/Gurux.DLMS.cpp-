@@ -129,7 +129,7 @@ private:
     /*
      * GBT Window size. This is for internal use.
      */
-    unsigned char m_WindowSize;
+    unsigned char m_GbtWindowSize;
 
     /*
      * Client address of the notification message. Notification message sets
@@ -358,12 +358,12 @@ public:
     /**
      * GBT Window size. This is for internal use.
      */
-    unsigned char GetWindowSize();
+    unsigned char GetGbtWindowSize();
 
     /**
      * GBT Window size. This is for internal use.
      */
-    void SetWindowSize(unsigned char value);
+    void SetGbtWindowSize(unsigned char value);
 
     /**
      * Is GBT streaming.

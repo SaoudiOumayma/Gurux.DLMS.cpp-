@@ -46,6 +46,7 @@ http://www.gurux.fi/Gurux.DLMS.Objects.GXDLMSSapAssignment
 class CGXDLMSSapAssignment : public CGXDLMSObject
 {
     std::map<int, std::string > m_SapAssignmentList;
+    int Invoke(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e);
 public:
     /**
      Constructor.
@@ -68,6 +69,13 @@ public:
     std::map<int, std::string >& GetSapAssignmentList();
 
     void SetSapAssignmentList(std::map<int, std::string >& value);
+
+    //Add new SAP item.
+    int AddSap(CGXDLMSClient* client, uint16_t id, std::string& name, std::vector<CGXByteBuffer>& reply);
+
+    //Remove SAP item
+    int RemoveSap(CGXDLMSClient* client, std::string& name, std::vector<CGXByteBuffer>& reply);
+
 
     // Returns amount of attributes.
     int GetAttributeCount();

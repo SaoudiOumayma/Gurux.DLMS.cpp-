@@ -46,6 +46,7 @@ class CGXDLMSClient
 protected:
     friend class CGXDLMSSchedule;
     CGXDLMSSettings m_Settings;
+    char m_ManufacturerId[3];
 private:
     // If protected release is used release is including a ciphered xDLMS Initiate request.
     bool m_UseProtectedRelease;
@@ -224,6 +225,11 @@ public:
     // Maximum client PDU size.
     int SetMaxReceivePDUSize(unsigned short value);
     unsigned short GetMaxReceivePDUSize();
+
+    /////////////////////////////////////////////////////////////////////////////
+    // General Block transfer window size.
+    int SetGbtWindowSize(unsigned char value);
+    unsigned char GetGbtWindowSize();
 
     //HDLC connection settings. GetLimits is obsolete. Use GetHdlcSettings instead.
     CGXDLMSLimits& GetLimits();
@@ -901,5 +907,18 @@ public:
     /// list: Collection of access items.
     /// data: Received data from the meter.
     int ParseAccessResponse(std::vector<CGXDLMSAccessItem>& list, CGXByteBuffer& data);
+
+    // Manufacturer ID.
+    // 
+    // Manufacturer ID(FLAG ID) is used for manucaturer depending functionality.
+    char* GetManufacturerId();
+    void SetManufacturerId(char value[3]);
+
+    // Encrypt Landis+Gyr High level password.
+    // password: User password.
+    // seed: Seed received from the meter.
+    // Returns occurred error.
+    int EncryptLandisGyrHighLevelAuthentication(CGXByteBuffer& password, CGXByteBuffer& seed, CGXByteBuffer& crypted);
+
 };
 #endif //GXDLMSCLIENT_H

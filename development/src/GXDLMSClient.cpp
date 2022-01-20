@@ -77,6 +77,7 @@ CGXDLMSClient::CGXDLMSClient(bool UseLogicalNameReferencing,
             DLMS_CONFORMANCE_MULTIPLE_REFERENCES));
     }
     m_Settings.GetPlcSettings().Reset();
+    SetManufacturerId(NULL);
 }
 
 CGXDLMSClient::~CGXDLMSClient()
@@ -152,6 +153,17 @@ int CGXDLMSClient::SetMaxReceivePDUSize(unsigned short value)
 unsigned short CGXDLMSClient::GetMaxReceivePDUSize()
 {
     return m_Settings.GetMaxPduSize();
+}
+
+int CGXDLMSClient::SetGbtWindowSize(unsigned char value)
+{
+    m_Settings.SetGbtWindowSize(value);
+    return 0;
+}
+
+unsigned char CGXDLMSClient::GetGbtWindowSize()
+{
+    return m_Settings.GetGbtWindowSize();
 }
 
 DLMS_CONFORMANCE CGXDLMSClient::GetNegotiatedConformance()
@@ -904,6 +916,7 @@ int CGXDLMSClient::GetApplicationAssociationRequest(
     std::vector<CGXByteBuffer>& packets)
 {
     int ret;
+    CGXDLMSVariant name;
     packets.clear();
     if (m_Settings.GetAuthentication() != DLMS_AUTHENTICATION_HIGH_ECDSA &&
         m_Settings.GetAuthentication() != DLMS_AUTHENTICATION_HIGH_GMAC &&
@@ -914,6 +927,25 @@ int CGXDLMSClient::GetApplicationAssociationRequest(
     }
     m_Settings.ResetBlockIndex();
     CGXByteBuffer pw, challenge;
+
+    //Count challenge for Landis+Gyr. L+G is using custom way to count the challenge.
+    if (memcmp(m_ManufacturerId, "LGZ", 3) == 0 && m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH)
+    {
+        if ((ret = EncryptLandisGyrHighLevelAuthentication(m_Settings.GetPassword(), m_Settings.GetStoCChallenge(), challenge)) != 0)
+        {
+            return ret;
+        }
+        CGXDLMSVariant data = challenge;
+        if (GetUseLogicalNameReferencing())
+        {
+            name = "0.0.40.0.0.255";
+            return Method(name, DLMS_OBJECT_TYPE_ASSOCIATION_LOGICAL_NAME,
+                1, data, packets);
+        }
+        name = 0xFA00;
+        return Method(name, DLMS_OBJECT_TYPE_ASSOCIATION_SHORT_NAME, 8, data, packets);
+    }
+
     if (m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH_GMAC)
     {
         pw = m_Settings.GetCipher()->GetSystemTitle();
@@ -940,7 +972,7 @@ int CGXDLMSClient::GetApplicationAssociationRequest(
     {
         return ret;
     }
-    CGXDLMSVariant name, data = challenge;
+    CGXDLMSVariant data = challenge;
     if (GetUseLogicalNameReferencing())
     {
         name = "0.0.40.0.0.255";
@@ -955,67 +987,75 @@ int CGXDLMSClient::GetApplicationAssociationRequest(
 int CGXDLMSClient::ParseApplicationAssociationResponse(
     CGXByteBuffer& reply)
 {
-    CGXDataInfo info;
-    unsigned char ch;
-    bool equals = false;
-    CGXByteBuffer secret;
-    int ret;
-    unsigned long ic = 0;
-    CGXDLMSVariant value;
-    if ((ret = GXHelpers::GetData(&m_Settings, reply, info, value)) != 0)
+    //Landis+Gyr is not returning StoC.
+    if (memcmp(m_ManufacturerId, "LGZ", 3) == 0 && m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH)
     {
-        return ret;
-    }
-    if (value.vt != DLMS_DATA_TYPE_NONE)
-    {
-        if (m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH_GMAC)
-        {
-            secret = m_Settings.GetSourceSystemTitle();
-            CGXByteBuffer bb;
-            bb.Set(value.byteArr, value.GetSize());
-            if ((ret = bb.GetUInt8(&ch)) != 0)
-            {
-                return ret;
-            }
-            if ((ret = bb.GetUInt32(&ic)) != 0)
-            {
-                return ret;
-            }
-        }
-        else if (m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH_SHA256)
-        {
-            secret.Set(&m_Settings.GetPassword());
-            secret.Set(&m_Settings.GetSourceSystemTitle());
-            secret.Set(&m_Settings.GetCipher()->GetSystemTitle());
-            secret.Set(&m_Settings.GetCtoSChallenge());
-            secret.Set(&m_Settings.GetStoCChallenge());
-        }
-        else
-        {
-            secret = m_Settings.GetPassword();
-        }
-        CGXByteBuffer challenge, cToS = m_Settings.GetCtoSChallenge();
-        if ((ret = CGXSecure::Secure(
-            m_Settings,
-            m_Settings.GetCipher(),
-            ic,
-            cToS,
-            secret,
-            challenge)) != 0)
-        {
-            return ret;
-        }
-        equals = challenge.Compare(value.byteArr, value.GetSize());
+        m_Settings.SetConnected((DLMS_CONNECTION_STATE) (m_Settings.GetConnected() | DLMS_CONNECTION_STATE_DLMS));
     }
     else
     {
-        // Server did not accept CtoS.
-    }
+        CGXDataInfo info;
+        unsigned char ch;
+        bool equals = false;
+        CGXByteBuffer secret;
+        int ret;
+        unsigned long ic = 0;
+        CGXDLMSVariant value;
+        if ((ret = GXHelpers::GetData(&m_Settings, reply, info, value)) != 0)
+        {
+            return ret;
+        }
+        if (value.vt != DLMS_DATA_TYPE_NONE)
+        {
+            if (m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH_GMAC)
+            {
+                secret = m_Settings.GetSourceSystemTitle();
+                CGXByteBuffer bb;
+                bb.Set(value.byteArr, value.GetSize());
+                if ((ret = bb.GetUInt8(&ch)) != 0)
+                {
+                    return ret;
+                }
+                if ((ret = bb.GetUInt32(&ic)) != 0)
+                {
+                    return ret;
+                }
+            }
+            else if (m_Settings.GetAuthentication() == DLMS_AUTHENTICATION_HIGH_SHA256)
+            {
+                secret.Set(&m_Settings.GetPassword());
+                secret.Set(&m_Settings.GetSourceSystemTitle());
+                secret.Set(&m_Settings.GetCipher()->GetSystemTitle());
+                secret.Set(&m_Settings.GetCtoSChallenge());
+                secret.Set(&m_Settings.GetStoCChallenge());
+            }
+            else
+            {
+                secret = m_Settings.GetPassword();
+            }
+            CGXByteBuffer challenge, cToS = m_Settings.GetCtoSChallenge();
+            if ((ret = CGXSecure::Secure(
+                m_Settings,
+                m_Settings.GetCipher(),
+                ic,
+                cToS,
+                secret,
+                challenge)) != 0)
+            {
+                return ret;
+            }
+            equals = challenge.Compare(value.byteArr, value.GetSize());
+        }
+        else
+        {
+            // Server did not accept CtoS.
+        }
 
-    if (!equals)
-    {
-        //ParseApplicationAssociationResponse failed. Server to Client do not match.
-        return DLMS_ERROR_CODE_AUTHENTICATION_FAILURE;
+        if (!equals)
+        {
+            //ParseApplicationAssociationResponse failed. Server to Client do not match.
+            return DLMS_ERROR_CODE_AUTHENTICATION_FAILURE;
+        }
     }
     return 0;
 }
@@ -1988,7 +2028,7 @@ int CGXDLMSClient::AccessRequest(struct tm* time, std::vector<CGXDLMSAccessItem>
     unsigned char ln[6];
     std::string tmp;
     CGXByteBuffer bb;
-    if ((ret = GXHelpers::SetObjectCount(list.size(), bb)) == 0)
+    if ((ret = GXHelpers::SetObjectCount((unsigned long)list.size(), bb)) == 0)
     {
         for (std::vector< CGXDLMSAccessItem >::iterator it = list.begin(); it != list.end(); ++it)
         {
@@ -2006,7 +2046,7 @@ int CGXDLMSClient::AccessRequest(struct tm* time, std::vector<CGXDLMSAccessItem>
         }
         //Data
         DLMS_DATA_TYPE type;
-        GXHelpers::SetObjectCount(list.size(), bb);
+        GXHelpers::SetObjectCount((unsigned long)list.size(), bb);
         for (std::vector< CGXDLMSAccessItem >::iterator it = list.begin(); it != list.end(); ++it)
         {
             if (it->GetCommand() == DLMS_ACCESS_SERVICE_COMMAND_TYPE_GET)
@@ -2107,6 +2147,62 @@ int CGXDLMSClient::ParseAccessResponse(std::vector<CGXDLMSAccessItem>& list, CGX
         if (it->GetCommand() == DLMS_ACCESS_SERVICE_COMMAND_TYPE_GET && it->GetError() == DLMS_ERROR_CODE_OK)
         {
             if ((ret = UpdateValue(*it->GetTarget(), it->GetIndex(), it->GetValue())) != 0)
+            {
+                break;
+            }
+        }
+    }
+    return ret;
+}
+
+char* CGXDLMSClient::GetManufacturerId()
+{
+    if (m_ManufacturerId[0] == 0)
+    {
+        return NULL;
+    }
+    return m_ManufacturerId;
+}
+
+void CGXDLMSClient::SetManufacturerId(char value[3])
+{
+    if (value == NULL)
+    {
+        memset(m_ManufacturerId, 0, sizeof(m_ManufacturerId));
+    }
+    else
+    {
+        memcpy(m_ManufacturerId, value, sizeof(m_ManufacturerId));
+    }
+}
+
+int CGXDLMSClient::EncryptLandisGyrHighLevelAuthentication(CGXByteBuffer& password, CGXByteBuffer& seed, CGXByteBuffer& crypted)
+{
+    int pos, ret;
+    if ((ret = crypted.Set(seed.GetData(), seed.GetSize())) != 0)
+    {
+        return ret;
+    }
+    unsigned char ch, ch2;
+    for (pos = 0; pos != password.GetSize(); ++pos)
+    {
+        if ((ret = password.GetUInt8(pos, &ch)) != 0)
+        {
+            break;
+        }
+        if (ch != 0x30)
+        {
+            if ((ret = crypted.GetUInt8(pos, &ch2)) != 0)
+            {
+                break;
+            }
+            ch2 += ch - 0x30;
+            //Convert to upper case.
+            if (ch2 > 0x39)
+            {
+                ch2 += 7;
+            }
+            if ((ret = crypted.SetUInt8(pos, ch2)) != 0)
             {
                 break;
             }

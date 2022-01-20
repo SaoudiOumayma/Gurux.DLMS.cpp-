@@ -135,7 +135,7 @@ void CGXReplyData::Clear()
     m_BlockNumber = 0;
     m_BlockNumberAck = 0;
     m_Streaming = false;
-    m_WindowSize = 0;
+    m_GbtWindowSize = 0;
     m_ClientAddress = 0;
     m_ServerAddress = 0;
     m_CommandType = 0;
@@ -293,18 +293,18 @@ void CGXReplyData::SetStreaming(bool value)
     m_Streaming = value;
 }
 
-unsigned char CGXReplyData::GetWindowSize() {
-    return m_WindowSize;
+unsigned char CGXReplyData::GetGbtWindowSize() {
+    return m_GbtWindowSize;
 }
 
-void CGXReplyData::SetWindowSize(unsigned char value)
+void CGXReplyData::SetGbtWindowSize(unsigned char value)
 {
-    m_WindowSize = value;
+    m_GbtWindowSize = value;
 }
 
 bool CGXReplyData::IsStreaming()
 {
-    return m_Streaming && (m_BlockNumberAck * m_WindowSize) + 1 > m_BlockNumber;
+    return (m_MoreData & DLMS_DATA_REQUEST_TYPES_FRAME) == 0 && m_Streaming && (m_BlockNumberAck * m_GbtWindowSize) + 1 > m_BlockNumber;
 }
 
 unsigned short CGXReplyData::GetClientAddress()

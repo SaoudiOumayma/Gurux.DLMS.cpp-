@@ -221,6 +221,12 @@
 #ifndef DLMS_IGNORE_IEC_TWISTED_PAIR_SETUP
 #include "../include/GXDLMSIecTwistedPairSetup.h"
 #endif //DLMS_IGNORE_IEC_TWISTED_PAIR_SETUP
+#ifndef DLMS_IGNORE_NTP_SETUP
+#include "../include/GXDLMSNtpSetup.h"
+#endif //DLMS_IGNORE_NTP_SETUP
+#ifndef DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
+#include "../include/GXDLMSCommunicationPortProtection.h"
+#endif //DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
 
 CGXXmlWriter::CGXXmlWriter(FILE* f, bool skipDefaults)
 {
@@ -2218,6 +2224,64 @@ int SaveSFSKPhyMacSetUp(CGXXmlWriter* writer, CGXDLMSSFSKPhyMacSetUp* obj)
 }
 #endif //DLMS_IGNORE_SFSK_PHY_MAC_SETUP
 
+#ifndef DLMS_IGNORE_NTP_SETUP
+int SaveNtpSetup(CGXXmlWriter* writer, CGXDLMSNtpSetup* obj)
+{
+    int ret;
+    if ((ret = writer->WriteElementString("Activated", obj->GetActivated())) == 0 &&
+        (ret = writer->WriteElementString("ServerAddress", obj->GetServerAddress())) == 0 &&
+        (ret = writer->WriteElementString("Port", obj->GetPort())) == 0 &&
+        (ret = writer->WriteElementString("Authentication", obj->GetAuthentication())) == 0 &&
+        (ret = writer->WriteStartElement("Keys")) == 0)
+    {
+        for (std::map<uint32_t, CGXByteBuffer>::iterator it = obj->GetKeys().begin();
+            it != obj->GetKeys().end(); ++it)
+        {
+            if ((ret = writer->WriteStartElement("Item")) != 0 ||
+                (ret = writer->WriteElementString("ID", std::to_string(it->first))) != 0 ||
+                (ret = writer->WriteElementString("Key", it->second.ToHexString())) != 0 ||
+                (ret = writer->WriteEndElement()) != 0)
+            {
+                break;
+            }
+        }
+        if (ret == 0)
+        {
+            // Keys
+            if ((ret = writer->WriteEndElement()) == 0)
+            {
+                ret = writer->WriteElementString("ClientKey", obj->GetClientKey().ToHexString());
+            }
+        }
+    }
+    return ret;
+}
+#endif //DLMS_IGNORE_NTP_SETUP
+#ifndef DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
+int SaveCommunicationPortProtection(CGXXmlWriter* writer, CGXDLMSCommunicationPortProtection* obj)
+{
+    int ret;
+    std::string ln;
+    if (obj->GetPort() != NULL)
+    {
+        obj->GetPort()->GetLogicalName(ln);
+    }
+    if ((ret = writer->WriteElementString("ProtectionMode", obj->GetProtectionMode())) == 0 &&
+        (ret = writer->WriteElementString("AllowedFailedAttempts", obj->GetAllowedFailedAttempts())) == 0 &&
+        (ret = writer->WriteElementString("InitialLockoutTime", obj->GetInitialLockoutTime())) == 0 &&
+        (ret = writer->WriteElementString("SteepnessFactor", obj->GetSteepnessFactor())) == 0 &&
+        (ret = writer->WriteElementString("MaxLockoutTime", obj->GetMaxLockoutTime())) == 0 &&
+        (ret = writer->WriteElementString("Port", ln)) == 0 &&
+        (ret = writer->WriteElementString("ProtectionStatus", obj->GetProtectionStatus())) == 0 &&
+        (ret = writer->WriteElementString("FailedAttempts", obj->GetFailedAttempts())) == 0 &&
+        (ret = writer->WriteElementString("CumulativeFailedAttempts", obj->GetCumulativeFailedAttempts())) == 0)
+    {
+
+    }
+    return ret;
+}
+#endif //DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
+
 int SaveReferences(CGXXmlWriter* writer, std::vector<std::string>& list, const char* name)
 {
     int ret;
@@ -2959,6 +3023,14 @@ int CGXXmlWriter::Save(CGXDLMSObject* obj)
     case DLMS_OBJECT_TYPE_SFSK_PHY_MAC_SETUP:
         return SaveSFSKPhyMacSetUp(this, (CGXDLMSSFSKPhyMacSetUp*)obj);
 #endif //DLMS_IGNORE_SFSK_PHY_MAC_SETUP
+#ifndef DLMS_IGNORE_NTP_SETUP
+    case DLMS_OBJECT_TYPE_NTP_SETUP:
+        return SaveNtpSetup(this, (CGXDLMSNtpSetup*)obj);
+#endif //DLMS_IGNORE_NTP_SETUP
+#ifndef DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
+    case DLMS_OBJECT_TYPE_COMMUNICATION_PORT_PROTECTION:
+        return SaveCommunicationPortProtection(this, (CGXDLMSCommunicationPortProtection*)obj);
+#endif //DLMS_IGNORE_COMMUNICATION_PORT_PROTECTION
     default:
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }

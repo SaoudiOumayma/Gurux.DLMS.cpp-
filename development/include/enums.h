@@ -586,64 +586,58 @@ typedef enum
     //No security is used.
     DLMS_SECURITY_POLICY_NOTHING = 0,
     /*
-     All messages to be authenticated.
+     All messages to be authenticated using Security Suite 0.
     */
     DLMS_SECURITY_POLICY_AUTHENTICATED = 1,
     /*
-     All messages to be encrypted.
+     All messages to be encrypted using Security Suite 0.
     */
     DLMS_SECURITY_POLICY_ENCRYPTED = 2,
     /*
-     All messages to be authenticated and encrypted.
+     All messages to be authenticated and encrypted using Security Suite 0.
     */
-    DLMS_SECURITY_POLICY_AUTHENTICATED_ENCRYPTED = 3
+    DLMS_SECURITY_POLICY_AUTHENTICATED_ENCRYPTED = 3,
+    /*
+    * Request is authenticated in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_AUTHENTICATED_REQUEST = 0x4,
+    /*
+    * Request is encrypted in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_ENCRYPTED_REQUEST = 0x8,
+    /*
+    * Request is digitally signed in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_DIGITALLY_SIGNED_REQUEST = 0x10,
+    /*
+    * Response is authenticated in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_AUTHENTICATED_RESPONSE = 0x20,
+    /*
+    * Response is encrypted in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_ENCRYPTED_RESPONSE = 0x40,
+    /*
+    * Response is digitally signed in Security Suite 1.
+    */
+    DLMS_SECURITY_POLICY_DIGITALLY_SIGNED_RESPONSE = 0x80
 } DLMS_SECURITY_POLICY;
-
-// Security policy Enforces authentication and/or encryption algorithm provided with security_suite.
-  //Note! This enumeration values are used in Security Setup version 1.
-typedef enum
-{
-    /*
-    * Security is not used.
-    */
-    DLMS_SECURITY_POLICY1_NOTHING = 0,
-    /*
-    * Request is authenticated.
-    */
-    DLMS_SECURITY_POLICY1_AUTHENTICATED_REQUEST = 0x4,
-    /*
-    * Request is encrypted.
-    */
-    DLMS_SECURITY_POLICY1_ENCRYPTED_REQUEST = 0x8,
-    /*
-    * Request is digitally signed.
-    */
-    DLMS_SECURITY_POLICY1_DIGITALLY_SIGNED_REQUEST = 0x10,
-    /*
-    * Response is authenticated.
-    */
-    DLMS_SECURITY_POLICY1_AUTHENTICATED_RESPONSE = 0x20,
-    /*
-    * Response is encrypted.
-    */
-    DLMS_SECURITY_POLICY1_ENCRYPTED_RESPONSE = 0x40,
-    /*
-    * Response is digitally signed.
-    */
-    DLMS_SECURITY_POLICY1_DIGITALLY_SIGNED_RESPONSE = 0x80
-} DLMS_SECURITY_POLICY1;
 
 //Security suite Specifies authentication, encryption and key wrapping algorithm.
 typedef enum
 {
     /*
-     AES-GCM-128 for authenticated encryption and AES-128 for key wrapping.
+     GMAC ciphering is used with security setup version 0.
     */
     DLMS_SECURITY_SUITE_V0 = 0,
     /*
-     AES-GCM-128 authenticated encryption, ECDSA P-256 digital signature, ECDH P-256 key agreement, SHA-256 hash, V.44 compression and AES-128 key wrap,
+     AES-GCM-128 authenticated encryption, ECDSA P-256 digital signature, ECDH P-256 key agreement, SHA-256 hash, V.44 compression and AES-128 key wrap.
     */
-    DLMS_SECURITY_SUITE_V1 = 1
+    DLMS_SECURITY_SUITE_V1 = 1,
+    /*
+     AES-GCM-128 authenticated encryption, ECDSA P-384 digital signature, ECDH P-384 key agreement, SHA-384 hash, V.44 compression and AES-128 key wrap.
+    */
+    DLMS_SECURITY_SUITE_V2 = 2
 } DLMS_SECURITY_SUITE;
 
 typedef enum
@@ -959,6 +953,9 @@ typedef enum
     */
     DLMS_OBJECT_TYPE_G3_PLC6_LO_WPAN = 92,
 
+    /*NTP Setup is used for time synchronisation.*/
+    DLMS_OBJECT_TYPE_NTP_SETUP = 100,
+
     /*
     * Configure a ZigBee PRO device with information necessary to create or
     * join the network.
@@ -983,7 +980,11 @@ typedef enum
     DLMS_OBJECT_TYPE_CREDIT = 112,
     DLMS_OBJECT_TYPE_CHARGE = 113,
     DLMS_OBJECT_TYPE_TOKEN_GATEWAY = 115,
-    DLMS_OBJECT_TYPE_COMPACT_DATA = 62
+    DLMS_OBJECT_TYPE_COMPACT_DATA = 62,
+    /*
+    * Communication port protection.
+    */
+    DLMS_OBJECT_TYPE_COMMUNICATION_PORT_PROTECTION = 124
 } DLMS_OBJECT_TYPE;
 
 /*
@@ -2067,9 +2068,10 @@ typedef enum
 }DLMS_SET_RESPONSE_TYPE;
 
 /*
-* Enumerates all Unit constants.
-*/
-typedef enum {
+ * Enumerates all Unit constants.
+ */
+typedef enum
+{
     /*
     * No Unit.
     */
@@ -2148,11 +2150,11 @@ typedef enum {
     /*
     * Volume flux m3/24*60*60s.
     */
-    DLMS_UNIT_VOLUME_FLUXDAY = 17,
+    DLMS_UNIT_VOLUME_FLUX_DAY = 17,
     /*
     * Corrected volume flux m3/24*60*60s.
     */
-    DLMS_UNIT_CORRECTE_VOLUME_FLUX_DAY = 18,
+    DLMS_UNIT_CORRECTED_VOLUME_FLUX_DAY = 18,
     /*
     * Volume 10-3 m3.
     */
@@ -2172,7 +2174,7 @@ typedef enum {
     /*
     * Pressure p pascal N/m2.
     */
-    PRESSURE_PASCAL = 23,
+    DLMS_UNIT_PRESSURE_PASCAL = 23,
     /*
     * Pressure p bar 10-5 N/m2.
     */
@@ -2208,7 +2210,7 @@ typedef enum {
     /*
     * Reactive energy var*60*60s.
     */
-    REACTIVE_ENERGY = 32,
+    DLMS_UNIT_REACTIVE_ENERGY = 32,
     /*
     * Current I ampere A.
     */
@@ -2290,13 +2292,13 @@ typedef enum {
     */
     DLMS_UNIT_KELVIN = 52,
     /*
-    * 1/ = V2h) RU2h , volt-squared hour meter constant or pulse value.
+    * 1/(V2h) RU2h , volt-squared hour meter constant or pulse value.
     */
-    DLMS_UNIT_V2H = 53,
+    DLMS_UNIT_RU2H = 53,
     /*
-    * 1/ = A2h) RI2h , ampere-squared hour meter constant or pulse value.
+    * 1/(A2h) RI2h , ampere-squared hour meter constant or pulse value.
     */
-    DLMS_UNIT_A2H = 54,
+    DLMS_UNIT_RI2H = 54,
     /*
     * 1/m3 RV , meter constant or pulse value  = volume).
     */
@@ -2336,9 +2338,213 @@ typedef enum {
     */
     DLMS_UNIT_JOULE_KILOGRAM = 65,
     /*
-    * dBm Signal strength  = e.g. of GSM radio systems).
+    * Pressure, gram per square centimeter.
     */
-    DLMS_UNIT_SIGNAL_STRENGTH = 70,
+    DLMS_UNIT_PRESSURE_GRAM_PER_SQUARE_CENTIMETER = 66,
+    /*
+    * Pressure, atmosphere.
+    */
+    DLMS_UNIT_PRESSURE_ATMOSPHERE = 67,
+    /*
+    * Signal strength, dB milliwatt (e.g. of GSM radio systems)
+    */
+    DLMS_UNIT_SIGNAL_STRENGTH_MILLI_WATT = 70,
+    /*
+    * Signal strength, dB microvolt.
+    */
+    DLMS_UNIT_SIGNAL_STRENGTH_MICRO_VOLT = 71,
+    /*
+    * Logarithmic unit that expresses the ratio between two values of a physical quantity
+    */
+    DLMS_UNIT_DB = 72,
+    /*
+    * Length in inches.
+    */
+    DLMS_UNIT_INCH = 128,
+    /*
+    * Foot (Length).
+    */
+    DLMS_UNIT_FOOT = 129,
+    /*
+    * Pound (mass).
+    */
+    DLMS_UNIT_POUND = 130,
+    /*
+    * Fahrenheit.
+    */
+    DLMS_UNIT_FAHRENHEIT = 131,
+    /*
+    * Rankine.
+    */
+    DLMS_UNIT_RANKINE = 132,
+    /*
+    * Square inch.
+    */
+    DLMS_UNIT_SQUARE_INCH = 133,
+    /*
+    * Square foot.
+    */
+    DLMS_UNIT_SQUARE_FOOT = 134,
+    /*
+    * Acre.
+    */
+    DLMS_UNIT_ACRE = 135,
+    /*
+    * Cubic inch.
+    */
+    DLMS_UNIT_CUBIC_INCH = 136,
+    /*
+    * Cubic foot.
+    */
+    DLMS_UNIT_CUBIC_FOOT = 137,
+    /*
+    * Acre foot.
+    */
+    DLMS_UNIT_ACRE_FOOT = 138,
+    /*
+    * Gallon (imperial).
+    */
+    DLMS_UNIT_GALLON_IMPERIAL = 139,
+    /*
+    *  Gallon (US).
+    */
+    DLMS_UNIT_GALLON_US = 140,
+    /*
+    * Pound force.
+    */
+    DLMS_UNIT_POUND_FORCE = 141,
+    /*
+    * Pound force per square inch.
+    */
+    DLMS_UNIT_POUND_FORCE_PER_SQUARE_INCH = 142,
+    /*
+    * Pound per cubic foot.
+    */
+    DLMS_UNIT_POUND_PER_CUBIC_FOOT = 143,
+    /*
+    * Pound per (foot second).
+    */
+    DLMS_UNIT_POUND_PER_FOOT_SECOND = 144,
+    /*
+    * Square foot per second.
+    */
+    DLMS_UNIT_SQUARE_FOOT_PER_SECOND = 145,
+    /*
+    * British thermal unit.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT = 146,
+    /*
+    * Therm EU.
+    */
+    DLMS_UNIT_THERM_EU = 147,
+    /*
+    * Therm US.
+    */
+    DLMS_UNIT_THERM_US = 148,
+    /*
+    * British thermal unit per pound.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_POUND = 149,
+    /*
+    * British thermal unit per cubic foot.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_CUBIC_FOOT = 150,
+    /*
+    * Cubic feet.
+    */
+    DLMS_UNIT_CUBIC_FEET = 151,
+    /*
+    * Foot per second.
+    */
+    DLMS_UNIT_FOOT_PER_SECOND = 152,
+    /*
+    * Cubic foot per second.
+    */
+    DLMS_UNIT_CUBIC_FOOT_PER_SECOND = 153,
+    /*
+    * Cubic foot per min.
+    */
+    DLMS_UNIT_CUBIC_FOOT_PER_MIN = 154,
+    /*
+    * Cubic foot per hour.
+    */
+    DLMS_UNIT_CUBIC_FOOT_PER_HOUR = 155,
+    /*
+    * Cubic foot per day
+    */
+    DLMS_UNIT_CUBIC_FOOT_PER_DAY = 156,
+    /*
+    * Acre foot per second.
+    */
+    DLMS_UNIT_ACRE_FOOT_PER_SECOND = 157,
+    /*
+    * Acre foot per min.
+    */
+    DLMS_UNIT_ACRE_FOOT_PER_MIN = 158,
+    /*
+    *  Acre foot per hour.
+    */
+    DLMS_UNIT_ACRE_FOOT_PER_HOUR = 159,
+    /*
+    *  Acre foot per day.
+    */
+    DLMS_UNIT_ACRE_FOOT_PER_DAY = 160,
+    /*
+    * Imperial gallon.
+    */
+    DLMS_UNIT_IMPERIAL_GALLON = 161,
+    /*
+    * Imperial gallon per second.
+    */
+    DLMS_UNIT_IMPERIAL_GALLON_PER_SECOND = 162,
+    /*
+    * Imperial gallon per min.
+    */
+    DLMS_UNIT_IMPERIAL_GALLON_PER_MIN = 163,
+    /*
+    * Imperial gallon per hour.
+    */
+    DLMS_UNIT_IMPERIAL_GALLON_PER_HOUR = 164,
+    /*
+    * Imperial gallon per day.
+    */
+    DLMS_UNIT_IMPERIAL_GALLON_PER_DAY = 165,
+    /*
+    * US gallon.
+    */
+    DLMS_UNIT_US_GALLON = 166,
+    /*
+    * US gallon per second.
+    */
+    DLMS_UNIT_US_GALLON_PER_SECOND = 167,
+    /*
+    * US gallon per min.
+    */
+    DLMS_UNIT_US_GALLON_PER_MIN = 168,
+    /*
+    * US gallon per hour.
+    */
+    DLMS_UNIT_US_GALLON_PER_HOUR = 169,
+    /*
+    * US gallon per day.
+    */
+    DLMS_UNIT_US_GALLON_PER_DAY = 170,
+    /*
+    * British thermal unit per second.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_SECOND = 171,
+    /*
+    * British thermal unit per minute.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_MIN = 172,
+    /*
+    * British thermal unit per hour.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_HOUR = 173,
+    /*
+    * British thermal unit per day.
+    */
+    DLMS_UNIT_BRITISH_THERMAL_UNIT_PER_DAY = 174,
     /*
     * Other Unit.
     */
@@ -2731,21 +2937,21 @@ typedef enum {
  */
 typedef enum {
     /*
-     * Certificate type is digital signature.
-     */
+    * Certificate type is digital signature.
+    */
     DLMS_CERTIFICATE_TYPE_DIGITAL_SIGNATURE = 0,
     /*
-     * Certificate type is key agreement.
-     */
-     DLMS_CERTIFICATE_TYPE_KEY_AGREEMENT = 1,
-     /*
-      * Certificate type is TLS.
-      */
-      DLMS_CERTIFICATE_TYPE_TLS = 2,
-      /*
-       * Certificate type is other.
-       */
-       DLMS_CERTIFICATE_TYPE_OTHER = 3
+    * Certificate type is key agreement.
+    */
+    DLMS_CERTIFICATE_TYPE_KEY_AGREEMENT = 1,
+    /*
+    * Certificate type is TLS.
+    */
+    DLMS_CERTIFICATE_TYPE_TLS = 2,
+    /*
+    * Certificate type is other.
+    */
+    DLMS_CERTIFICATE_TYPE_OTHER = 3
 }DLMS_CERTIFICATE_TYPE;
 
 typedef enum
@@ -2827,12 +3033,12 @@ typedef enum
 {
     // Normal action.
     DLMS_ACTION_RESPONSE_TYPE_NORMAL = 1,
-    // Action with first block.
-    DLMS_ACTION_RESPONSE_TYPE_WITH_FIRST_BLOCK = 2,
+    // Action with block.
+    DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK = 2,
     // Action with list.
     DLMS_ACTION_RESPONSE_TYPE_WITH_LIST = 3,
     // Next block.
-    DLMS_ACTION_RESPONSE_TYPE_WITH_BLOCK = 4
+    DLMS_ACTION_RESPONSE_TYPE_NEXT_BLOCK = 4
 }DLMS_ACTION_RESPONSE_TYPE;
 
 /*
@@ -3172,4 +3378,431 @@ typedef enum
     // TLS
     DLMS_MBUS_ENCRYPTION_MODE_TLS = 13
 }DLMS_MBUS_ENCRYPTION_MODE;
+
+/*Defines NTP authentication methods.*/
+typedef enum
+{
+    //No security is used.
+    DLMS_NTP_AUTHENTICATION_METHOD_NO_SECURITY = 0,
+    //Shared secrets are used.
+    DLMS_NTP_AUTHENTICATION_METHOD_SHARED_SECRETS = 1,
+    //IFF auto key is used.
+    DLMS_NTP_AUTHENTICATION_METHOD_AUTO_KEY_IFF = 2
+}DLMS_NTP_AUTHENTICATION_METHOD;
+
+/*Enumerates communication port protection mode values.*/
+typedef enum
+{
+    /**
+   * Port is locked. Communication is not possible.
+   */
+    DLMS_PROTECTION_MODE_LOCKED,
+
+    /**
+    * The port becomes temporarily locked when failed connections exceeds an
+    * allowed.
+    */
+    DLMS_PROTECTION_MODE_LOCKED_ON_FAILED_ATTEMPTS,
+
+    /**
+    * Port is unlocked.
+    */
+    DLMS_PROTECTION_MODE_UNLOCKED
+}DLMS_PROTECTION_MODE;
+
+/*Enumerates communication port protection status values.*/
+typedef enum
+{
+    /**
+    * Port is unlocked.
+    */
+    DLMS_PROTECTION_STATUS_UNLOCKED,
+    /**
+    * The port is temporarily locked. Communication is not possible.
+    */
+    DLMS_PROTECTION_STATUS_TEMPORARILY_LOCKED,
+    /**
+    * Port is locked. Communication is not possible.
+    */
+    DLMS_PROTECTION_STATUS_LOCKED
+}DLMS_PROTECTION_STATUS;
+
+/// X509 names.
+typedef enum
+{
+    DLMS_X509_NAME_NONE,
+    /// country code - StringType(SIZE(2)) 
+    DLMS_X509_NAME_C,
+    /// organization - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_O,
+    /// organizational unit name - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_OU,
+    /// Title 
+    DLMS_X509_NAME_T,
+    /// common name - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_CN,
+    /// street - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_STREET,
+    /// device serial number name - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_SERIAL_NUMBER,
+    /// locality name - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_L,
+    /// state, or province name - StringType(SIZE(1..64)) 
+    DLMS_X509_NAME_ST,
+    /// Naming attributes of type X520name 
+    DLMS_X509_NAME_SUR_NAME,
+    /// Given name. 
+    DLMS_X509_NAME_GIVEN_NAME,
+    /// Initials. 
+    DLMS_X509_NAME_INITIALS,
+    /// Generation. 
+    DLMS_X509_NAME_GENERATION,
+    /// Unique identifier. 
+    DLMS_X509_NAME_UNIQUE_IDENTIFIER,
+    /// businessCategory - DirectoryString(SIZE(1..128)) 
+    DLMS_X509_NAME_BUSINESS_CATEGORY,
+    /// postalCode - DirectoryString(SIZE(1..40)) 
+    DLMS_X509_NAME_POSTAL_CODE,
+    /// dnQualifier - DirectoryString(SIZE(1..64)) 
+    DLMS_X509_NAME_DN_QUALIFIER,
+    /// RFC 3039 Pseudonym - DirectoryString(SIZE(1..64)) 
+    DLMS_X509_NAME_PSEUDONYM,
+    /// RFC 3039 DateOfBirth - GeneralizedTime - YYYYMMDD000000Z 
+    DLMS_X509_NAME_DATE_OF_BIRTH,
+    /// RFC 3039 PlaceOfBirth - DirectoryString(SIZE(1..128)) 
+    DLMS_X509_NAME_PLACE_OF_BIRTH,
+    /// RFC 3039 DateOfBirth - PrintableString (SIZE(1 -- "M", "F", "m" or "f") 
+    DLMS_X509_NAME_GENDER,
+    /// RFC 3039 CountryOfCitizenship - PrintableString (SIZE (2 -- ISO 3166)) codes only 
+    DLMS_X509_NAME_COUNTRY_OF_CITIZENSHIP,
+    /// RFC 3039 CountryOfCitizenship - PrintableString (SIZE (2 -- ISO 3166)) codes only 
+    DLMS_X509_NAME_COUNTRY_OF_RESIDENCE,
+    /// ISIS-MTT NameAtBirth - DirectoryString(SIZE(1..64)) 
+    DLMS_X509_NAME_NAME_AT_BIRTH,
+    /// RFC 3039 PostalAddress - SEQUENCE SIZE (1..6 OF DirectoryString(SIZE(1..30))) 
+    DLMS_X509_NAME_POSTAL_ADDRESS,
+    /// RFC 2256 dmdName 
+    DLMS_X509_NAME_DMD_NAME,
+    /// id-at-telephoneNumber 
+    DLMS_X509_NAME_TELEPHONE_NUMBER,
+    /// id-at-name 
+    DLMS_X509_NAME_NAME,
+    /// email address in Verisign certificates 
+    DLMS_X509_NAME_E,
+    DLMS_X509_NAME_DC,
+    /// LDAP User id. 
+    DLMS_X509_NAME_UID
+}DLMS_X509_NAME;
+
+// x509 Certificate type.
+typedef enum
+{
+    DLMS_X509_CERTIFICATE_TYPE_NONE,
+    DLMS_X509_CERTIFICATE_TYPE_OLDAUTHORITY_KEY_IDENTIFIER,
+    DLMS_X509_CERTIFICATE_TYPE_OLD_PRIMARY_KEY_ATTRIBUTES,
+    DLMS_X509_CERTIFICATE_TYPE_CERTIFICATE_POLICIES,
+    DLMS_X509_CERTIFICATE_TYPE_ORIMARY_KEY_USAGE_RESTRICTION,
+    DLMS_X509_CERTIFICATE_TYPE_SUBJECT_DIRECTORY_ATTRIBUTES,
+    DLMS_X509_CERTIFICATE_TYPE_SUBJECT_KEY_IDENTIFIER,
+    DLMS_X509_CERTIFICATE_TYPE_KEY_USAGE,
+    DLMS_X509_CERTIFICATE_TYPE_PRIVATE_KEY_USAGE_PERIOD,
+    DLMS_X509_CERTIFICATE_TYPE_SUBJECT_ALTERNATIVE_NAME,
+    DLMS_X509_CERTIFICATE_TYPE_ISSUER_ALTERNATIVE_NAME,
+    DLMS_X509_CERTIFICATE_TYPE_BASIC_CONSTRAINTS,
+    DLMS_X509_CERTIFICATE_TYPE_CRL_NUMBER,
+    DLMS_X509_CERTIFICATE_TYPE_REASON_CODE,
+    DLMS_X509_CERTIFICATE_TYPE_HOLD_INSTRUCTIONCODE,
+    DLMS_X509_CERTIFICATE_TYPE_INVALIDITY_DATE,
+    DLMS_X509_CERTIFICATE_TYPE_DELTA_CRLINDICATOR,
+    DLMS_X509_CERTIFICATE_TYPE_ISSUING_DISTRIBUTION_POINT,
+    DLMS_X509_CERTIFICATE_TYPE_CERTIFICATE_ISSUER,
+    DLMS_X509_CERTIFICATE_TYPE_NAME_CONSTRAINTS,
+    DLMS_X509_CERTIFICATE_TYPE_CRL_DISTRIBUTION_POINTS,
+    DLMS_X509_CERTIFICATE_TYPE_CERTIFICATE_POLICIES2,
+    DLMS_X509_CERTIFICATE_TYPE_POLICY_MAPPINGS,
+    DLMS_X509_CERTIFICATE_TYPE_AUTHORITY_KEY_IDENTIFIER,
+    DLMS_X509_CERTIFICATE_TYPE_POLICY_CONSTRAINTS,
+    DLMS_X509_CERTIFICATE_TYPE_EXTENDED_KEY_USAGE,
+    DLMS_X509_CERTIFICATE_TYPE_FRESHEST_CRL
+}DLMS_X509_CERTIFICATE_TYPE;
+
+//X9 object identifiers.
+typedef enum
+{
+    DLMS_X9_OBJECT_IDENTIFIER_NONE,
+    DLMS_X9_OBJECT_IDENTIFIER_ID_FIELD_TYPE,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_FIELD,
+    DLMS_X9_OBJECT_IDENTIFIER_CHARACTERISTIC_TWO_FIELD,
+    DLMS_X9_OBJECT_IDENTIFIER_GN_BASIS,
+    DLMS_X9_OBJECT_IDENTIFIER_TP_BASIS,
+    DLMS_X9_OBJECT_IDENTIFIER_PP_BASIS,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA1,
+    DLMS_X9_OBJECT_IDENTIFIER_ID_EC_PUBLIC_KEY,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA2,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA224,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA256,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA_384,
+    DLMS_X9_OBJECT_IDENTIFIER_ECDSA_WITH_SHA_512,
+    DLMS_X9_OBJECT_IDENTIFIER_ELLIPTIC_CURVE,
+    DLMS_X9_OBJECT_IDENTIFIER_C_TWO_CURVE,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_163_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_163_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_163_V3,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_176_W1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_191_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_191_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_191_V3,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_ONB_191_V4,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_ONB_191_V5,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_208_W1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_239_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_239_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_239_V3,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_ONB_239_V4,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_ONB_239_V5,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_272_W1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_304_W1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_359_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_PNB_368_W1,
+    DLMS_X9_OBJECT_IDENTIFIER_C2_TNB_431_R1,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_CURVE,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_192_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_192_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_192_V3,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_239_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_239_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_239_V3,
+    DLMS_X9_OBJECT_IDENTIFIER_PRIME_256_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_ID_DSA,
+    DLMS_X9_OBJECT_IDENTIFIER_ID_DSA_WITH_SHA1,
+    DLMS_X9_OBJECT_IDENTIFIER_X9_X63_SCHEME,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_SINGLE_PASS_STD_DH_SHA1_KDF_SCHEME,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_SINGLE_PASS_COFACTOR_DH_SHA1_KDF_SCHEME,
+    DLMS_X9_OBJECT_IDENTIFIER_MQV_SINGLE_PASS_SHA1_KDF_SCHEME,
+    DLMS_X9_OBJECT_IDENTIFIER_ANSI_X9_42,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_PUBLIC_NUMBER,
+    DLMS_X9_OBJECT_IDENTIFIER_X9_X42_SCHEMES,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_STATIC,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_EPHEM,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_ONE_FLOW,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_HYBRID1,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_HYBRID2,
+    DLMS_X9_OBJECT_IDENTIFIER_DH_HYBRID_ONE_FLOW,
+    DLMS_X9_OBJECT_IDENTIFIER_MQ_V2,
+    DLMS_X9_OBJECT_IDENTIFIER_MQ_V1,
+    DLMS_X9_OBJECT_IDENTIFIER_SECP_384_R1
+}DLMS_X9_OBJECT_IDENTIFIER;
+
+// Public-Key Cryptography Standards (PKCS) type.
+typedef enum
+{
+    /// Unknown certificate type.
+    DLMS_PKCS_TYPE_NONE,
+    /// PKCS 8 is used with private key.
+    DLMS_PKCS_TYPE_PKCS8,
+    /// PKCS 10 is used with Certificate Signing Request.
+    DLMS_PKCS_TYPE_PKCS10,
+    /// x509Certificate is used with public key.
+    DLMS_PKCS_TYPE_X509_CERTIFICATE
+}DLMS_PKCS_TYPE;
+
+typedef enum
+{
+    DLMS_PKCS_OBJECT_IDENTIFIER_NONE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD2_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD4_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD5_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SHA1_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SRSA_OAEP_ENCRYPTIONSET,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_RSAES_OAEP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_MGF1,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_PSPECIFIED,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_RSASSA_PSS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SHA256_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SHA384_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SHA512_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SHA224_WITH_RSA_ENCRYPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_DH_KEY_AGREEMENT,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_MD2_AND_DES_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_MD2_AND_RC2_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_MD5_AND_DES_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_MD5_AND_RC2_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA1_AND_DES_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA1_AND_RC2_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_PBE_S2,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_PBKD_F2,
+    DLMS_PKCS_OBJECT_IDENTIFIER_DES_EDE3_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_RC2_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD2,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD4,
+    DLMS_PKCS_OBJECT_IDENTIFIER_MD5,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_HMAC_WITH_SHA1,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_HMAC_WITH_SHA224,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_HMAC_WITH_SHA256,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_HMAC_WITH_SHA384,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_HMAC_WITH_SHA512,
+    DLMS_PKCS_OBJECT_IDENTIFIER_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SIGNED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ENVELOPED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SIGNED_AND_ENVELOPED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_DIGESTED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ENCRYPTED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_EMAIL_ADDRESS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_UNSTRUCTURED_NAME,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_CONTENT_TYPE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_MESSAGE_DIGEST,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_SIGNING_TIME,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_COUNTER_SIGNATURE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_CHALLENGE_PASSWORD,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_UNSTRUCTURED_ADDRESS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_EXTENDED_CERTIFICATE_ATTRIBUTES,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_SIGNING_DESCRIPTION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_EXTENSION_REQUEST,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_SMIME_CAPABILITIES,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_SMIME,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_FRIENDLY_NAME,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS9_AT_LOCAL_KEY_ID,
+    DLMS_PKCS_OBJECT_IDENTIFIER_X509_CERTIFICATE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SDSI_CERTIFICATE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_X509_CRL,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG_ESDH,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG_CMS3_DES_WRAP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG_CMS_RC2_WRAP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG_PWRI_KEK,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_ALG_SSDH,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_RSA_KEM,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PREFER_SIGNED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_CANNOT_DECRYPT_ANY,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SMIME_CAPABILITIES_VERSIONS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_RECEIPT_REQUEST,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CT_AUTH_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CT_TST_INFO,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CT_COMPRESSED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CT_AUTH_ENVELOPED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CT_TIME_STAMPED_DATA,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_ORIGIN,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_RECEIPT,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_DELIVERY,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_SENDER,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_APPROVAL,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_CTI_ETS_PROOF_OF_CREATION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_CONTENT_HINT,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_MSG_SIG_DIGEST,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_CONTENT_REFERENCE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ENCRYP_KEY_PREF,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_SIGNING_CERTIFICATE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_SIGNING_CERTIFICATE_V2,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_CONTENT_ID_ENTIFIER,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_SIGNATURE_TIME_STAMP_TOKEN,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_SIG_POLICY_ID,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_COMMITMENT_TYPE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_SIGNER_LOCATION,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_SIGNER_ATTR,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_OTHER_SIG_CERT,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_CONTENT_TIMESTAMP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_CERTIFICATE_REFS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_REVOCATION_REFS,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_CERT_VALUES,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_REVOCATION_VALUES,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_ESC_TIME_STAMP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_CERT_CRL_TIMESTAMP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_AA_ETS_ARCHIVE_TIMESTAMP,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_SPQ_ETS_URI,
+    DLMS_PKCS_OBJECT_IDENTIFIER_ID_SPQ_ETS_UNOTICE,
+    DLMS_PKCS_OBJECT_IDENTIFIER_KEY_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PKCS8_SHROUDED_KEY_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_CERT_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_CRL_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SECRET_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_SAFECONTENTS_BAG,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_128_BIT_RC4,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_40_BIT_RC4,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_3KEY_TRIPLE_DES_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_2KEY_TRIPLE_DES_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_128_BIT_RC2_CBC,
+    DLMS_PKCS_OBJECT_IDENTIFIER_PBE_WITH_SHA_AND_40_BIT_RC2_CBC
+}DLMS_PKCS_OBJECT_IDENTIFIER;
+
+    /// Key Usage.
+    typedef enum
+    {
+    //Key is not used.
+    DLMS_KEY_USAGE_NONE = 0,
+    //Digital signature.
+    DLMS_KEY_USAGE_DIGITAL_SIGNATURE = 0x1,
+    //Non Repudiation.    
+    DLMS_KEY_USAGE_NON_REPUDIATION = 0x2,
+    //Key encipherment.
+    DLMS_KEY_USAGE_KEY_ENCIPHERMENT = 0x4,
+    //Data encipherment.
+    DLMS_KEY_USAGE_DATA_ENCIPHERMENT = 0x8,
+    //Key agreement.
+    DLMS_KEY_USAGE_KEY_AGREEMENT = 0x10,
+    //Used with CA certificates when the subject public key is used to verify a signature on certificates.
+    DLMS_KEY_USAGE_KEY_CERT_SIGN = 0x20,
+    //Used when the subject public key is to verify a signature.
+    DLMS_KEY_USAGE_CRL_SIGN = 0x40,
+    //Encipher only.
+    DLMS_KEY_USAGE_ENCIPHER_ONLY = 0x80,
+    //Decipher only.
+    DLMS_KEY_USAGE_DECIPHER_ONLY = 0x100
+    }DLMS_KEY_USAGE;
+
+    // Hash algorithms.
+    typedef enum 
+    {
+        DLMS_HASH_ALGORITHM_NONE,
+        DLMS_HASH_ALGORITHM_SHA1_RSA,
+        DLMS_HASH_ALGORITHM_MD5_RSA,
+        DLMS_HASH_ALGORITHM_SHA1_DSA,
+        DLMS_HASH_ALGORITHM_SHA1_RSA1,
+        DLMS_HASH_ALGORITHM_SHA_RSA,
+        DLMS_HASH_ALGORITHM_MD5_RSA1,
+        DLMS_HASH_ALGORITHM_MD2_RSA1,
+        DLMS_HASH_ALGORITHM_MD4_RSA,
+        DLMS_HASH_ALGORITHM_MD4_RSA1,
+        DLMS_HASH_ALGORITHM_MD4_RSA2,
+        DLMS_HASH_ALGORITHM_MD2_RSA,
+        DLMS_HASH_ALGORITHM_SHA1_DSA1,
+        DLMS_HASH_ALGORITHM_DSA_SHA1,
+        DLMS_HASH_ALGORITHM_MOSAIC_UPDATED_SIG,
+        DLMS_HASH_ALGORITHM_SHA1_NO_SIGN,
+        DLMS_HASH_ALGORITHM_MD5_NO_SIGN,
+        DLMS_HASH_ALGORITHM_SHA_256_NO_SIGN,
+        DLMS_HASH_ALGORITHM_SHA_384_NO_SIGN,
+        DLMS_HASH_ALGORITHM_SHA_512_NO_SIGN,
+        DLMS_HASH_ALGORITHM_SHA_256_RSA,
+        DLMS_HASH_ALGORITHM_SHA_384_RSA,
+        DLMS_HASH_ALGORITHM_SHA_512_RSA,
+        DLMS_HASH_ALGORITHM_RSA_SSA_PSS,
+        DLMS_HASH_ALGORITHM_SHA1_WITH_ECDSA,
+        DLMS_HASH_ALGORITHM_SHA_256_WITH_ECDSA,
+        DLMS_HASH_ALGORITHM_SHA_384_WITH_ECDSA,
+        DLMS_HASH_ALGORITHM_SHA_512_WITH_ECDSA,
+        DLMS_HASH_ALGORITHM_SPECIFIED_ECDSA
+    }DLMS_HASH_ALGORITHM;
+
+    // Extended key usage.
+    typedef enum 
+    {
+        // Extended key usage is not used.
+        DLMS_EXTENDED_KEY_USAGE_NONE,
+        // Certificate can be used as an TLS server certificate.
+        DLMS_EXTENDED_KEY_USAGE_SERVER_AUTH,
+        // Certificate can be used as an TLS client certificate.
+        DLMS_EXTENDED_KEY_USAGE_CLIENT_AUTH
+    }DLMS_EXTENDED_KEY_USAGE;
+
+    // Certificate version.
+    typedef enum
+    {
+    // Certificate version 1.
+    DLMS_CERTIFICATE_VERSION_1,
+    // Certificate version 2.
+    DLMS_CERTIFICATE_VERSION_2,
+    // Certificate version 3.
+    DLMS_CERTIFICATE_VERSION_3,
+    }DLMS_CERTIFICATE_VERSION;
 #endif //ENUMS_H

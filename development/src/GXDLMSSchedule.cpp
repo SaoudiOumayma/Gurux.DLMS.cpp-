@@ -394,14 +394,16 @@ int CGXDLMSSchedule::GetDataType(int index, DLMS_DATA_TYPE& type)
     if (index == 1)
     {
         type = DLMS_DATA_TYPE_OCTET_STRING;
-        return DLMS_ERROR_CODE_OK;
     }
-    if (index == 2)
+    else if (index == 2)
     {
         type = DLMS_DATA_TYPE_ARRAY;
-        return DLMS_ERROR_CODE_OK;
     }
-    return DLMS_ERROR_CODE_INVALID_PARAMETER;
+    else
+    {
+        return DLMS_ERROR_CODE_INVALID_PARAMETER;
+    }
+    return DLMS_ERROR_CODE_OK;
 }
 
 // Returns value of given attribute.

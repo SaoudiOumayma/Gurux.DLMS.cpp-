@@ -565,8 +565,15 @@ void CGXDLMSProfileGeneric::GetValues(std::vector<std::string>& values)
     {
         for (std::vector<CGXDLMSVariant>::iterator cell = row->begin(); cell != row->end(); ++cell)
         {
+            if (!empty)
+            {
+                sb << " | ";
+            }
+            else
+            {
+                empty = false;
+            }
             sb << cell->ToString();
-            sb << " | ";
         }
         sb << "\r\n";
     }
@@ -581,7 +588,10 @@ void CGXDLMSProfileGeneric::GetValues(std::vector<std::string>& values)
         {
             sb << ", ";
         }
-        empty = false;
+        else
+        {
+            empty = false;
+        }
         std::string str = it->first->GetName().ToString();
         sb.write(str.c_str(), str.size());
     }
@@ -828,6 +838,7 @@ int CGXDLMSProfileGeneric::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
 int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 {
     int ret;
+    static unsigned char UNIX_TIME[6] = { 0, 0, 1, 1, 0, 255 };
     if (e.GetIndex() == 1)
     {
         return SetLogicalName(this, e.GetValue());
@@ -852,6 +863,7 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
                 types.push_back(type);
             }
 
+            CGXDateTime lastDate;
             for (std::vector<CGXDLMSVariant >::iterator row = e.GetValue().Arr.begin(); row != e.GetValue().Arr.end(); ++row)
             {
                 if ((*row).Arr.size() != m_CaptureObjects.size())
@@ -862,16 +874,40 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
                 CGXDLMSVariant data;
                 for (unsigned int pos = 0; pos < (*row).Arr.size(); ++pos)
                 {
-                    DLMS_DATA_TYPE type = types[pos];
-                    if (type != DLMS_DATA_TYPE_NONE && row->Arr[pos].vt == DLMS_DATA_TYPE_OCTET_STRING)
-                    {
-                        if ((ret = CGXDLMSClient::ChangeType(row->Arr[pos], type, data)) != 0)
-                        {
-                            return ret;
-                        }
-                        row->Arr[pos] = data;
-                    }
                     std::pair<CGXDLMSObject*, CGXDLMSCaptureObject*> item = m_CaptureObjects[pos];
+                    DLMS_DATA_TYPE type = types[pos];
+                    if (row->Arr[pos].vt == DLMS_DATA_TYPE_NONE || row->Arr[pos].vt == DLMS_DATA_TYPE_OCTET_STRING || row->Arr[pos].vt == DLMS_DATA_TYPE_UINT32)
+                    {
+                        if (item.first->GetObjectType() == DLMS_OBJECT_TYPE_CLOCK && item.second->GetAttributeIndex() == 2)
+                        {
+                            if (row->Arr[pos].vt == DLMS_DATA_TYPE_OCTET_STRING)
+                            {
+                                if ((ret = CGXDLMSClient::ChangeType(row->Arr[pos], DLMS_DATA_TYPE_DATETIME, data)) != 0)
+                                {
+                                    return ret;
+                                }
+                                row->Arr[pos] = data;
+                                lastDate = data.dateTime;
+                            }
+                            //Some meters returns NULL date time to save bytes.
+                            else if (row->Arr[pos].vt == DLMS_DATA_TYPE_NONE)
+                            {
+                                if ((ret = lastDate.AddSeconds(m_SortMethod == DLMS_SORT_METHOD_FIFO || m_SortMethod == DLMS_SORT_METHOD_SMALLEST ?
+                                    m_CapturePeriod : -m_CapturePeriod)) != 0)
+                                {
+                                    return ret;
+                                }
+                                row->Arr[pos] = lastDate;
+                            }
+                        }
+                        else if (row->Arr[pos].vt == DLMS_DATA_TYPE_UINT32 && 
+                            item.first->GetObjectType() == DLMS_OBJECT_TYPE_DATA && item.first->GetObjectType() == 2 &&
+                            memcmp(item.first->m_LN, UNIX_TIME, 6) == 0)
+                        {
+                            lastDate = CGXDateTime(row->Arr[pos].ulVal);
+                            row->Arr[pos] = lastDate;
+                        }
+                    }
                     if ((item.first->GetObjectType() == DLMS_OBJECT_TYPE_REGISTER || item.first->GetObjectType() == DLMS_OBJECT_TYPE_EXTENDED_REGISTER)
                         && item.second->GetAttributeIndex() == 2)
                     {
@@ -972,5 +1008,5 @@ int CGXDLMSProfileGeneric::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEvent
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
     return DLMS_ERROR_CODE_OK;
-                }
+}
 #endif //DLMS_IGNORE_PROFILE_GENERIC

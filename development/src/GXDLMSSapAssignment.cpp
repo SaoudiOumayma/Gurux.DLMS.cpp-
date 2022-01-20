@@ -213,4 +213,68 @@ int CGXDLMSSapAssignment::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventA
     }
     return DLMS_ERROR_CODE_INVALID_PARAMETER;
 }
+
+int CGXDLMSSapAssignment::AddSap(CGXDLMSClient* client, uint16_t id, std::string& name, std::vector<CGXByteBuffer>& reply)
+{
+    CGXByteBuffer bb;
+    bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE);
+    //Add structure size.
+    bb.SetUInt8(2);
+    GXHelpers::SetData2(NULL, bb, DLMS_DATA_TYPE_UINT16, id);
+    GXHelpers::SetData2(NULL, bb, DLMS_DATA_TYPE_OCTET_STRING, name);
+    CGXDLMSVariant data = bb;
+    return client->Method(this, 1, data, DLMS_DATA_TYPE_STRUCTURE, reply);
+}
+
+
+int CGXDLMSSapAssignment::RemoveSap(CGXDLMSClient* client, std::string& name, std::vector<CGXByteBuffer>& reply)
+{
+    CGXByteBuffer bb;
+    bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE);
+    //Add structure size.
+    bb.SetUInt8(2);
+    GXHelpers::SetData2(NULL, bb, DLMS_DATA_TYPE_UINT16, 0);
+    GXHelpers::SetData2(NULL, bb, DLMS_DATA_TYPE_OCTET_STRING, name);
+    CGXDLMSVariant data((char)0);
+    return client->Method(this, 1, data, reply);
+}
+
+
+int CGXDLMSSapAssignment::Invoke(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
+{
+    if (e.GetIndex() == 1)
+    {
+        uint16_t id = e.GetParameters().Arr[0].ToInteger();
+        std::string str;
+        if (e.GetParameters().Arr[1].vt == DLMS_DATA_TYPE_OCTET_STRING)
+        {
+           str.append(reinterpret_cast<char const*>(e.GetParameters().Arr[1].byteArr), e.GetParameters().Arr[1].GetSize());
+        }
+        else
+        {
+            str = e.GetParameters().Arr[1].ToString();
+        }
+        if (id == 0)
+        {
+            for (std::map<int, std::string >::iterator it = m_SapAssignmentList.begin(); it != m_SapAssignmentList.end(); ++it)
+            {
+                if (it->second.compare(str) == 0)
+                {
+                    m_SapAssignmentList.erase(it);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            m_SapAssignmentList[id] = str;
+        }
+    }
+    else
+    {
+        e.SetError(DLMS_ERROR_CODE_READ_WRITE_DENIED);
+    }
+    return DLMS_ERROR_CODE_OK;
+}
+
 #endif //DLMS_IGNORE_SAP_ASSIGNMENT

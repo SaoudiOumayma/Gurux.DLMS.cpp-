@@ -49,7 +49,9 @@ CGXDLMSSecuritySetup::CGXDLMSSecuritySetup() : CGXDLMSSecuritySetup("0.0.43.0.0.
 CGXDLMSSecuritySetup::CGXDLMSSecuritySetup(std::string ln, unsigned short sn) :
     CGXDLMSObject(DLMS_OBJECT_TYPE_SECURITY_SETUP, ln, sn)
 {
-
+    m_Version = 1;
+    m_SecurityPolicy = DLMS_SECURITY_POLICY_NOTHING;
+    m_SecuritySuite = DLMS_SECURITY_SUITE_V0;
 }
 
 //LN Constructor.
@@ -58,12 +60,12 @@ CGXDLMSSecuritySetup::CGXDLMSSecuritySetup(std::string ln) : CGXDLMSSecuritySetu
 
 }
 
-unsigned char CGXDLMSSecuritySetup::GetSecurityPolicy()
+DLMS_SECURITY_POLICY CGXDLMSSecuritySetup::GetSecurityPolicy()
 {
     return m_SecurityPolicy;
 }
 
-void CGXDLMSSecuritySetup::SetSecurityPolicy(unsigned char value)
+void CGXDLMSSecuritySetup::SetSecurityPolicy(DLMS_SECURITY_POLICY value)
 {
     m_SecurityPolicy = value;
 }
@@ -133,7 +135,7 @@ int CGXDLMSSecuritySetup::GlobalKeyTransfer(
     std::vector<std::pair<DLMS_GLOBAL_KEY_TYPE, CGXByteBuffer&> >& list,
     std::vector<CGXByteBuffer>& reply)
 {
-    int ret =  0;
+    int ret = 0;
     CGXDLMSVariant data;
     CGXByteBuffer bb, tmp;
     if (list.size() == 0)
@@ -142,7 +144,7 @@ int CGXDLMSSecuritySetup::GlobalKeyTransfer(
         return DLMS_ERROR_CODE_INVALID_PARAMETER;
     }
     bb.SetUInt8(DLMS_DATA_TYPE_ARRAY);
-    bb.SetUInt8((unsigned char) list.size());
+    bb.SetUInt8((unsigned char)list.size());
     for (std::vector<std::pair<DLMS_GLOBAL_KEY_TYPE, CGXByteBuffer&> >::iterator it = list.begin(); it != list.end(); ++it)
     {
         bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE);
@@ -167,11 +169,159 @@ int CGXDLMSSecuritySetup::GlobalKeyTransfer(
     return ret;
 }
 
+int CGXDLMSSecuritySetup::ImportCertificate(
+    CGXDLMSClient* client,
+    CGXByteBuffer& key,
+    std::vector<CGXByteBuffer>& reply)
+{
+    CGXDLMSVariant data = key;
+    reply.clear();
+    return client->Method(this, 6, data, reply);
+}
+
+int CGXDLMSSecuritySetup::ExportCertificateByEntity(
+    CGXDLMSClient* client,
+    DLMS_CERTIFICATE_ENTITY entity,
+    DLMS_CERTIFICATE_TYPE type,
+    CGXByteBuffer& systemTitle,
+    std::vector<CGXByteBuffer>& reply)
+{
+    int ret;
+    CGXDLMSVariant data;
+    CGXByteBuffer bb;
+    reply.clear();
+    if ((ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //Add enum
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(0)) == 0 &&
+        //Add certificate_identification_by_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(3)) == 0 &&
+        //Add certificate_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(entity)) == 0 &&
+        //Add certificate_type
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(type)) == 0 &&
+        //system_title
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)systemTitle.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&systemTitle, 0, systemTitle.GetSize())) == 0)
+    {
+        data = bb;
+        ret = client->Method(this, 7, data, DLMS_DATA_TYPE_ARRAY, reply);
+    }
+    return ret;
+}
+
+int CGXDLMSSecuritySetup::ExportCertificateBySerial(
+    CGXDLMSClient* client,
+    CGXByteBuffer& serialNumber,
+    CGXByteBuffer& issuer,
+    std::vector<CGXByteBuffer>& reply)
+{
+    int ret;
+    CGXDLMSVariant data;
+    CGXByteBuffer bb;
+    reply.clear();
+    if ((ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //Add enum
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(1)) == 0 &&
+        //Add certificate_identification_by_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //serialNumber
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)serialNumber.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&serialNumber, 0, serialNumber.GetSize())) == 0 &&
+        //issuer
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)issuer.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&issuer, 0, issuer.GetSize())) == 0)
+    {
+        data = bb;
+        ret = client->Method(this, 7, data, DLMS_DATA_TYPE_ARRAY, reply);
+    }
+    return ret;
+}
+
+int CGXDLMSSecuritySetup::RemoveCertificateByEntity(
+    CGXDLMSClient* client,
+    DLMS_CERTIFICATE_ENTITY entity,
+    DLMS_CERTIFICATE_TYPE type,
+    CGXByteBuffer& systemTitle,
+    std::vector<CGXByteBuffer>& reply)
+{
+    int ret;
+    CGXDLMSVariant data;
+    CGXByteBuffer bb;
+    reply.clear();
+    if ((ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //Add enum
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(0)) == 0 &&
+        //Add certificate_identification_by_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(3)) == 0 &&
+        //Add certificate_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(entity)) == 0 &&
+        //Add certificate_type
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(type)) == 0 &&
+        //system_title
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)systemTitle.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&systemTitle, 0, systemTitle.GetSize())) == 0)
+    {
+        data = bb;
+        ret = client->Method(this, 8, data, DLMS_DATA_TYPE_ARRAY, reply);
+    }
+    return ret;
+}
+
+int CGXDLMSSecuritySetup::RemoveCertificateBySerial(
+    CGXDLMSClient* client,
+    CGXByteBuffer& serialNumber,
+    CGXByteBuffer& issuer,
+    std::vector<CGXByteBuffer>& reply)
+{
+    int ret;
+    CGXDLMSVariant data;
+    CGXByteBuffer bb;
+    reply.clear();
+    if ((ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //Add enum
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_ENUM)) == 0 &&
+        (ret = bb.SetUInt8(1)) == 0 &&
+        //Add certificate_identification_by_entity
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_STRUCTURE)) == 0 &&
+        (ret = bb.SetUInt8(2)) == 0 &&
+        //serialNumber
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)serialNumber.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&serialNumber, 0, serialNumber.GetSize())) == 0 &&
+        //issuer
+        (ret = bb.SetUInt8(DLMS_DATA_TYPE_OCTET_STRING)) == 0 &&
+        (ret = GXHelpers::SetObjectCount((unsigned long)issuer.GetSize(), bb)) == 0 &&
+        (ret = bb.Set(&issuer, 0, issuer.GetSize())) == 0)
+    {
+        data = bb;
+        ret = client->Method(this, 8, data, DLMS_DATA_TYPE_ARRAY, reply);
+    }
+    return ret;
+}
+
 int CGXDLMSSecuritySetup::Invoke(CGXDLMSSettings& settings, CGXDLMSValueEventArg& e)
 {
     if (e.GetIndex() == 1)
     {
-        m_SecurityPolicy = e.GetParameters().ToInteger();
+        m_SecurityPolicy = (DLMS_SECURITY_POLICY)e.GetParameters().ToInteger();
     }
     else if (e.GetIndex() == 2)
     {
@@ -254,15 +404,7 @@ void CGXDLMSSecuritySetup::GetValues(std::vector<std::string>& values)
     std::string ln;
     GetLogicalName(ln);
     values.push_back(ln);
-    if (m_Version == 0)
-    {
-        values.push_back(CGXDLMSConverter::ToString((DLMS_SECURITY_POLICY)m_SecurityPolicy));
-    }
-    else
-    {
-        CGXDLMSConverter::ToString((DLMS_SECURITY_POLICY1)m_SecurityPolicy, ln);
-        values.push_back(ln);
-    }
+    values.push_back(CGXDLMSConverter::ToString(m_SecurityPolicy));
     values.push_back(CGXDLMSConverter::ToString(m_SecuritySuite));
     std::string str = m_ClientSystemTitle.ToHexString();
     values.push_back(str);

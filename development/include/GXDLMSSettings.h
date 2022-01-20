@@ -171,7 +171,7 @@ class CGXDLMSSettings
     /*
      * GBT window size.
      */
-    unsigned char m_WindowSize;
+    unsigned char m_GbtWindowSize;
 
     /**
     * Proposed conformance block. Client asks this funtionality.
@@ -539,62 +539,42 @@ public:
     /*
     * Block number acknowledged in GBT.
     */
-    int GetBlockNumberAck()
-    {
-        return m_BlockNumberAck;
-    }
+    int GetBlockNumberAck();
 
     /**
      * Block number acknowledged in GBT.
      */
-    void SetBlockNumberAck(int value)
-    {
-        m_BlockNumberAck = value;
-    }
+    void SetBlockNumberAck(int value);
 
     /*
     * GBT window size.
     */
-    unsigned char GetWindowSize()
-    {
-        return m_WindowSize;
-    }
+    unsigned char GetGbtWindowSize();
 
     /*
      * GBT window size.
     */
-    void SetWindowSize(unsigned char value)
-    {
-        m_WindowSize = value;
-    }
+    void SetGbtWindowSize(unsigned char value);
 
     /**
      * the command
      */
-    unsigned char GetCommand() {
-        return m_Command;
-    }
+    unsigned char GetCommand();
 
     /**
      * the command to set
      */
-    void SetCommand(unsigned char value) {
-        m_Command = value;
-    }
+    void SetCommand(unsigned char value);
 
     /**
      * Command Type
      */
-    unsigned char GetCommandType() {
-        return m_CommandType;
-    }
+    unsigned char GetCommandType();
 
     /**
      * Command Type
      */
-    void SetCommandType(unsigned char value) {
-        m_CommandType = value;
-    }
+    void SetCommandType(unsigned char value);
 
     //Add dynamically allocated objects here so they are released.
     //This is done if object is not in the association view, but might be ex. capture objects.

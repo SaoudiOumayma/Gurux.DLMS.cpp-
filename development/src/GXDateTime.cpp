@@ -164,6 +164,27 @@ CGXDateTime::CGXDateTime(struct tm& value)
     }
 }
 
+
+CGXDateTime::CGXDateTime(const unsigned long unixTime)
+{
+    m_Deviation = 0;
+    time_t t = unixTime;
+    m_Value = *gmtime(&t);
+    m_Skip = DATETIME_SKIPS_NONE;
+    m_Extra = DATE_TIME_EXTRA_INFO_NONE;
+    m_Status = DLMS_CLOCK_STATUS_OK;
+}
+
+CGXDateTime::CGXDateTime(const unsigned long long unixTime)
+{
+    m_Deviation = 0;
+    time_t t = unixTime;
+    m_Value = *gmtime(&t);
+    m_Skip = DATETIME_SKIPS_NONE;
+    m_Extra = DATE_TIME_EXTRA_INFO_NONE;
+    m_Status = DLMS_CLOCK_STATUS_OK;
+}
+
 // Constructor.
 CGXDateTime::CGXDateTime(struct tm* value)
 {
