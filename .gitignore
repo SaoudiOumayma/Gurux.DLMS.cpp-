@@ -236,3 +236,6 @@ GuruxDLMSServerExample/VS/data.csv
 *.zip
 GuruxDLMSClientExample/VS/DvlErrLog.txt
 *.exe
+.idea/
+.vscode/
+checks.json

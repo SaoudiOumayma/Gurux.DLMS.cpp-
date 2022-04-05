@@ -38,8 +38,9 @@
 #include <Winsock.h> //Add support for sockets
 #endif
 
-#include "../../development/include/GXDLMSSecureServer.h"
-#include "../../development/include/GXDLMSSecuritySetup.h"
+#include "GXIgnore.h"
+#include "GXDLMSSecureServer.h"
+#include "GXDLMSSecuritySetup.h"
 
 #if defined(_WIN32) || defined(_WIN64)//Windows
 extern TCHAR DATAFILE[FILENAME_MAX];
@@ -107,6 +108,7 @@ public:
     /////////////////////////////////////////////////////////////////////////
     //Constructor.
     /////////////////////////////////////////////////////////////////////////
+#ifndef DLMS_IGNORE_ASSOCIATION_SHORT_NAME
     CGXDLMSBase(
         CGXDLMSAssociationShortName* sn,
         CGXDLMSIecHdlcSetup* hdlc) :
@@ -139,6 +141,7 @@ public:
 #endif
         SetMaxReceivePDUSize(1024);
     }
+#endif //DLMS_IGNORE_ASSOCIATION_SHORT_NAME
 
     /////////////////////////////////////////////////////////////////////////
     //Destructor.

@@ -739,7 +739,7 @@ int SaveAutoAnswer(CGXXmlWriter* writer, CGXDLMSAutoAnswer* obj)
                 break;
             }
         }
-        if ((ret == 0))
+        if (ret == 0)
         {
             if ((ret = writer->WriteEndElement()) == 0 &&
                 (ret = writer->WriteElementString("Status", obj->GetStatus())) == 0 &&
@@ -905,7 +905,7 @@ int SaveIecHdlcSetup(CGXXmlWriter* writer, CGXDLMSIecHdlcSetup* obj)
         (ret = writer->WriteElementString("WindowSizeRx", obj->GetWindowSizeReceive(), 1)) != 0 ||
         (ret = writer->WriteElementString("MaximumInfoLengthTx", obj->GetMaximumInfoLengthTransmit(), 0x80)) != 0 ||
         (ret = writer->WriteElementString("MaximumInfoLengthRx", obj->GetMaximumInfoLengthReceive(), 0x80)) != 0 ||
-        (ret = writer->WriteElementString("InterCharachterTimeout", obj->GetInterCharachterTimeout(), 30)) != 0 ||
+        (ret = writer->WriteElementString("InterCharacterTimeout", obj->GetInterCharacterTimeout(), 30)) != 0 ||
         (ret = writer->WriteElementString("InactivityTimeout", obj->GetInactivityTimeout(), 120)) != 0 ||
         (ret = writer->WriteElementString("DeviceAddress", obj->GetDeviceAddress(), 0)) != 0)
     {
@@ -934,6 +934,7 @@ int SaveIecLocalPortSetup(CGXXmlWriter* writer, CGXDLMSIECLocalPortSetup* obj)
 }
 #endif //DLMS_IGNORE_IEC_LOCAL_PORT_SETUP
 
+#ifndef DLMS_IGNORE_IEC_TWISTED_PAIR_SETUP
 int SaveIecTwistedPairSetup(CGXXmlWriter* writer, CGXDLMSIecTwistedPairSetup* obj)
 {
     int ret;
@@ -959,6 +960,7 @@ int SaveIecTwistedPairSetup(CGXXmlWriter* writer, CGXDLMSIecTwistedPairSetup* ob
     }
     return ret;
 }
+#endif //DLMS_IGNORE_IEC_TWISTED_PAIR_SETUP
 
 #ifndef DLMS_IGNORE_IP4_SETUP
 int SaveIp4Setup(CGXXmlWriter* writer, CGXDLMSIp4Setup* obj)
@@ -1207,7 +1209,7 @@ int SavePushSetup(CGXXmlWriter* writer, CGXDLMSPushSetup* obj)
                 if (ret == 0)
                 {
                     if ((ret = writer->WriteEndElement()) != 0 ||
-                        (ret = writer->WriteElementString("RandomisationStartInterval", obj->GetRandomisationStartInterval())) != 0 ||
+                        (ret = writer->WriteElementString("RandomizationStartInterval", obj->GetRandomizationStartInterval())) != 0 ||
                         (ret = writer->WriteElementString("NumberOfRetries", obj->GetNumberOfRetries())) != 0 ||
                         (ret = writer->WriteElementString("RepetitionDelay", obj->GetRepetitionDelay())) != 0)
                     {
@@ -1257,7 +1259,7 @@ int SavePppSetup(CGXXmlWriter* writer, CGXDLMSPppSetup* obj)
                 if (ret == 0)
                 {
                     if ((ret = writer->WriteEndElement()) != 0 ||
-                        (ret = writer->WriteElementString("UserName", obj->GetUserName().ToHexString())) != 0 ||
+                        (ret = writer->WriteElementString("UserName", obj->GetUsername().ToHexString())) != 0 ||
                         (ret = writer->WriteElementString("Password", obj->GetPassword().ToHexString())) != 0)
                     {
 

@@ -51,7 +51,7 @@ class CGXDLMSIecHdlcSetup : public CGXDLMSObject
     DLMS_BAUD_RATE m_CommunicationSpeed;
     int m_WindowSizeTransmit;
     int m_WindowSizeReceive;
-    int m_InterCharachterTimeout;
+    int m_InterCharacterTimeout;
     int m_MaximumInfoLengthReceive;
 
 public:
@@ -78,8 +78,8 @@ public:
     int GetMaximumInfoLengthReceive();
     void SetMaximumInfoLengthReceive(int value);
 
-    int GetInterCharachterTimeout();
-    void SetInterCharachterTimeout(int value);
+    int GetInterCharacterTimeout();
+    void SetInterCharacterTimeout(int value);
 
 
     int GetInactivityTimeout();

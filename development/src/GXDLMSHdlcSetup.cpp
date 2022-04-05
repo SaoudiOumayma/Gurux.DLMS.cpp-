@@ -51,7 +51,7 @@ CGXDLMSIecHdlcSetup::CGXDLMSIecHdlcSetup(std::string ln, unsigned short sn) :
     m_MaximumInfoLengthTransmit = m_MaximumInfoLengthReceive = 128;
     m_InactivityTimeout = 120;
     m_DeviceAddress = 0;
-    m_InterCharachterTimeout = 30;
+    m_InterCharacterTimeout = 30;
     m_Version = 1;
 }
 
@@ -106,13 +106,13 @@ void CGXDLMSIecHdlcSetup::SetMaximumInfoLengthReceive(int value)
     m_MaximumInfoLengthReceive = value;
 }
 
-int CGXDLMSIecHdlcSetup::GetInterCharachterTimeout()
+int CGXDLMSIecHdlcSetup::GetInterCharacterTimeout()
 {
-    return m_InterCharachterTimeout;
+    return m_InterCharacterTimeout;
 }
-void CGXDLMSIecHdlcSetup::SetInterCharachterTimeout(int value)
+void CGXDLMSIecHdlcSetup::SetInterCharacterTimeout(int value)
 {
-    m_InterCharachterTimeout = value;
+    m_InterCharacterTimeout = value;
 }
 
 int CGXDLMSIecHdlcSetup::GetInactivityTimeout()
@@ -156,7 +156,7 @@ void CGXDLMSIecHdlcSetup::GetValues(std::vector<std::string>& values)
     values.push_back(CGXDLMSVariant(m_WindowSizeReceive).ToString());
     values.push_back(CGXDLMSVariant(m_MaximumInfoLengthTransmit).ToString());
     values.push_back(CGXDLMSVariant(m_MaximumInfoLengthReceive).ToString());
-    values.push_back(CGXDLMSVariant(m_InterCharachterTimeout).ToString());
+    values.push_back(CGXDLMSVariant(m_InterCharacterTimeout).ToString());
     values.push_back(CGXDLMSVariant(m_InactivityTimeout).ToString());
     values.push_back(CGXDLMSVariant(m_DeviceAddress).ToString());
 }
@@ -193,7 +193,7 @@ void CGXDLMSIecHdlcSetup::GetAttributeIndexToRead(bool all, std::vector<int>& at
     {
         attributes.push_back(6);
     }
-    //InterCharachterTimeout
+    //InterCharacterTimeout
     if (all || !IsRead(7))
     {
         attributes.push_back(7);
@@ -291,7 +291,7 @@ int CGXDLMSIecHdlcSetup::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventAr
     }
     else if (e.GetIndex() == 7)
     {
-        e.SetValue(m_InterCharachterTimeout);
+        e.SetValue(m_InterCharacterTimeout);
     }
     else if (e.GetIndex() == 8)
     {
@@ -337,7 +337,7 @@ int CGXDLMSIecHdlcSetup::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventAr
     }
     else if (e.GetIndex() == 7)
     {
-        m_InterCharachterTimeout = e.GetValue().ToInteger();
+        m_InterCharacterTimeout = e.GetValue().ToInteger();
     }
     else if (e.GetIndex() == 8)
     {

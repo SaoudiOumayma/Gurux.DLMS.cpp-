@@ -47,7 +47,7 @@ CGXDLMSPushSetup::CGXDLMSPushSetup() :
 CGXDLMSPushSetup::CGXDLMSPushSetup(std::string ln, unsigned short sn) :
     CGXDLMSObject(DLMS_OBJECT_TYPE_PUSH_SETUP, ln, sn)
 {
-    m_RandomisationStartInterval = m_NumberOfRetries = m_RepetitionDelay = 0;
+    m_RandomizationStartInterval = m_NumberOfRetries = m_RepetitionDelay = 0;
     GXHelpers::SetLogicalName("0.7.25.9.0.255", m_LN);
     m_Service = DLMS_SERVICE_TYPE_TCP;
     m_Message = DLMS_MESSAGE_TYPE_COSEM_APDU;
@@ -149,7 +149,7 @@ void CGXDLMSPushSetup::GetValues(std::vector<std::string>& values)
     sb << ']';
     values.push_back(sb.str());
 
-    values.push_back(CGXDLMSVariant(m_RandomisationStartInterval).ToString());
+    values.push_back(CGXDLMSVariant(m_RandomizationStartInterval).ToString());
     values.push_back(CGXDLMSVariant(m_NumberOfRetries).ToString());
     values.push_back(CGXDLMSVariant(m_RepetitionDelay).ToString());
 }
@@ -177,7 +177,7 @@ void CGXDLMSPushSetup::GetAttributeIndexToRead(bool all, std::vector<int>& attri
     {
         attributes.push_back(4);
     }
-    //RandomisationStartInterval
+    //RandomizationStartInterval
     if (all || CanRead(5))
     {
         attributes.push_back(5);
@@ -338,7 +338,7 @@ int CGXDLMSPushSetup::GetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& 
     }
     if (e.GetIndex() == 5)
     {
-        e.SetValue(m_RandomisationStartInterval);
+        e.SetValue(m_RandomizationStartInterval);
         return DLMS_ERROR_CODE_OK;
     }
     if (e.GetIndex() == 6)
@@ -425,7 +425,7 @@ int CGXDLMSPushSetup::SetValue(CGXDLMSSettings& settings, CGXDLMSValueEventArg& 
     }
     else if (e.GetIndex() == 5)
     {
-        m_RandomisationStartInterval = e.GetValue().ToInteger();
+        m_RandomizationStartInterval = e.GetValue().ToInteger();
     }
     else if (e.GetIndex() == 6)
     {

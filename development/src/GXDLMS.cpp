@@ -984,7 +984,7 @@ int CGXDLMS::GetLNPdu(
                 if (p.IsMultipleBlocks() &&
                     (p.GetSettings()->GetNegotiatedConformance() & DLMS_CONFORMANCE_GENERAL_BLOCK_TRANSFER) == 0)
                 {
-                    //There is no status fiel in action resonse.
+                    //There is no status field in action response.
                     p.SetStatus(0xFF);
                     if (p.GetRequestType() == DLMS_ACTION_RESPONSE_TYPE_NORMAL)
                     {
@@ -1410,7 +1410,7 @@ int CGXDLMS::GetSNPdu(
     {
         reply.Set(p.GetData(), p.GetData()->GetPosition(), cnt);
     }
-    // If all data is transfered.
+    // If all data is transferred.
     if (p.GetData() != NULL && p.GetData()->GetPosition() == p.GetData()->GetSize())
     {
         p.GetSettings()->SetIndex(0);
@@ -3567,7 +3567,7 @@ int CGXDLMS::HandleGetResponseNextDataBlock(
     {
         // If meter's block index is zero based or Actaris is read.
         // Actaris SL7000 might return wrong block index sometimes.
-        // It's not reseted to 1.
+        // It's not reset to 1.
         if (number != 1 && settings.GetBlockIndex() == 1)
         {
             settings.SetBlockIndex(number);
@@ -4281,12 +4281,12 @@ int CGXDLMS::GetMBusData(
         if (data.GetXml() != NULL && data.GetXml()->GetComments())
         {
             std::string man = DecryptManufacturer(manufacturerID);
-            data.GetXml()->AppendComment("Command: " + cmd);
+            data.GetXml()->AppendComment("Command: " + std::to_string(cmd));
             data.GetXml()->AppendComment("Manufacturer: " + man);
-            data.GetXml()->AppendComment("Meter Version: " + meterVersion);
-            data.GetXml()->AppendComment("Meter Type: " + type);
-            data.GetXml()->AppendComment("Control Info: " + ci);
-            data.GetXml()->AppendComment("Encryption: " + encryption);
+            data.GetXml()->AppendComment("Meter Version: " + std::to_string(meterVersion));
+            data.GetXml()->AppendComment("Meter Type: " + std::to_string(type));
+            data.GetXml()->AppendComment("Control Info: " + std::to_string(ci));
+            data.GetXml()->AppendComment("Encryption: " + std::to_string(encryption));
         }
     }
     return ret;

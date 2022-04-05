@@ -52,7 +52,7 @@ CGXDLMSConverter::~CGXDLMSConverter()
 
 const char* CGXDLMSConverter::GetErrorMessage(int error)
 {
-    const char* str;
+    const char* str = "";
     if ((error & DLMS_ERROR_TYPE_EXCEPTION_RESPONSE) != 0)
     {
         switch (error & 0xFF)

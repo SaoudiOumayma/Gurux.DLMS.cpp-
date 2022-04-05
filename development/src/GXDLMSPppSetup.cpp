@@ -74,7 +74,7 @@ CGXByteBuffer& CGXDLMSPppSetup::GetUserNameW()
 }
 #endif //UNICODE
 
-CGXByteBuffer& CGXDLMSPppSetup::GetUserName()
+CGXByteBuffer& CGXDLMSPppSetup::GetUsername()
 {
     return m_UserName;
 }

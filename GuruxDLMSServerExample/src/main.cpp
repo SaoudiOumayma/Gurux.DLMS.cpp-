@@ -51,12 +51,9 @@
 #include <sys/time.h>
 #include <errno.h>
 #endif
-#include "../include/GXDLMSServerSN.h"
-#include "../include/GXDLMSServerLN.h"
-#include "../include/GXDLMSServerSN_47.h"
-#include "../include/GXDLMSServerLN_47.h"
-#include "../../development/include/GXDLMSAssociationLogicalName.h"
-#include "../../development/include/GXDLMSAssociationShortName.h"
+#include "GXDLMSBase.h"
+#include "GXDLMSAssociationLogicalName.h"
+#include "GXDLMSAssociationShortName.h"
 
 int Start(int port, GX_TRACE_LEVEL trace)
 {
@@ -64,55 +61,32 @@ int Start(int port, GX_TRACE_LEVEL trace)
     //Create Network media component and start listen events.
     //4059 is Official DLMS port.
     ///////////////////////////////////////////////////////////////////////
-    //Create Gurux DLMS server component for Short Name and start listen events.
-    CGXDLMSServerSN SNServer(new CGXDLMSAssociationShortName(), new CGXDLMSIecHdlcSetup());
-    if ((ret = SNServer.Init(port, trace)) != 0)
+    //Create Gurux DLMS server component for Logical Name and start listen events.
+    CGXDLMSBase LNServer(new CGXDLMSAssociationLogicalName(), new CGXDLMSIecHdlcSetup());
+    if ((ret = LNServer.Init(port, trace)) != 0)
     {
         return ret;
     }
 
-    printf("System Title: %s\r\n", SNServer.GetCiphering()->GetSystemTitle().ToHexString().c_str());
-    printf("Authentication key: %s\r\n", SNServer.GetCiphering()->GetAuthenticationKey().ToHexString().c_str());
-    printf("Block cipher key: %s\r\n", SNServer.GetCiphering()->GetBlockCipherKey().ToHexString().c_str());
-  //  printf("Client System title: %s\r\n", SNServer.GetClientSystemTitle().ToHexString().c_str());
-    printf("Master key (KEK) title: %s\r\n", SNServer.GetKek().ToHexString().c_str());
+    printf("System Title: %s\r\n", LNServer.GetCiphering()->GetSystemTitle().ToHexString().c_str());
+    printf("Authentication key: %s\r\n", LNServer.GetCiphering()->GetAuthenticationKey().ToHexString().c_str());
+    printf("Block cipher key: %s\r\n", LNServer.GetCiphering()->GetBlockCipherKey().ToHexString().c_str());
+    printf("Master key (KEK) title: %s\r\n", LNServer.GetKek().ToHexString().c_str());
 
-    printf("Short Name DLMS Server in port %d.\r\n", port);
+    printf("Logical Name DLMS Server in port %d.\r\n", port);
     printf("Example connection settings:\n");
     printf("Gurux.DLMS.Client.Example.Net -r sn -h localhost -p %d\n", port);
     printf("----------------------------------------------------------\n");
     ///////////////////////////////////////////////////////////////////////
     //Create Gurux DLMS server component for Short Name and start listen events.
-    CGXDLMSServerLN LNServer(new CGXDLMSAssociationLogicalName(), new CGXDLMSIecHdlcSetup());
-    if ((ret = LNServer.Init(port + 1, trace)) != 0)
+    CGXDLMSBase LN_47Server(new CGXDLMSAssociationLogicalName(), new CGXDLMSTcpUdpSetup());
+    if ((ret = LN_47Server.Init(port + 1, trace)) != 0)
     {
         return ret;
     }
-    printf("Logical Name DLMS Server in port %d.\r\n", port + 1);
+    printf("Logical Name DLMS Server with IEC 62056-47 in port %d.\r\n", port + 1);
     printf("Example connection settings:\n");
-    printf("GuruxDLMSClientExample -h localhost -p %d\n", port + 1);
-    printf("----------------------------------------------------------\n");
-    ///////////////////////////////////////////////////////////////////////
-    //Create Gurux DLMS server component for Short Name and start listen events.
-    CGXDLMSServerSN_47 SN_47Server(new CGXDLMSAssociationShortName(), new CGXDLMSTcpUdpSetup());
-    if ((ret = SN_47Server.Init(port + 2, trace)) != 0)
-    {
-        return ret;
-    }
-    printf("Short Name DLMS Server with IEC 62056-47 in port %d.\r\n", port + 2);
-    printf("Example connection settings:\n");
-    printf("GuruxDLMSClientExample -r sn -h localhost -p %d -w\n", port + 2);
-    printf("----------------------------------------------------------\n");
-    ///////////////////////////////////////////////////////////////////////
-    //Create Gurux DLMS server component for Short Name and start listen events.
-    CGXDLMSServerLN_47 LN_47Server(new CGXDLMSAssociationLogicalName(), new CGXDLMSTcpUdpSetup());
-    if ((ret = LN_47Server.Init(port + 3, trace)) != 0)
-    {
-        return ret;
-    }
-    printf("Logical Name DLMS Server with IEC 62056-47 in port %d.\r\n", port + 3);
-    printf("Example connection settings:\n");
-    printf("GuruxDLMSClientExample -h localhost -p %d -w\n", port + 3);
+    printf("GuruxDLMSClientExample -h localhost -p %d -w\n", port + 1);
     printf("----------------------------------------------------------\n");
     printf("Press Enter to close application.\r\n");
     getchar();
@@ -154,7 +128,7 @@ int main(int argc, char* argv[])
 #endif
 
     int opt, port = 4060;
-    GX_TRACE_LEVEL trace = GX_TRACE_LEVEL_INFO;
+    GX_TRACE_LEVEL trace = GX_TRACE_LEVEL_VERBOSE;
 #if defined(_WIN32) || defined(_WIN64)//Windows includes
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)

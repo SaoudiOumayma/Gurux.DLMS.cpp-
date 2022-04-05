@@ -53,7 +53,7 @@ private:
     DLMS_MESSAGE_TYPE m_Message;
     std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject> > m_PushObjectList;
     std::vector<std::pair<CGXDateTime, CGXDateTime> > m_CommunicationWindow;
-    int m_RandomisationStartInterval, m_NumberOfRetries, m_RepetitionDelay;
+    int m_RandomizationStartInterval, m_NumberOfRetries, m_RepetitionDelay;
 
 public:
     //Constructor.
@@ -67,7 +67,7 @@ public:
 
     /**
         Defines the list of attributes or objects to be pushed.
-        Upon a call of the push (data) method the selected attributes are sent to the desti-nation
+        Upon a call of the push (data) method the selected attributes are sent to the destination
         defined in send_destination_and_method.
     */
     std::vector<std::pair<CGXDLMSObject*, CGXDLMSCaptureObject> >& GetPushObjectList()
@@ -87,7 +87,7 @@ public:
     /**
      Contains the start and end date/time
      stamp when the communication window(s) for the push become active
-     (for the start instant), or inac-tive (for the end instant).
+     (for the start instant), or inactive (for the end instant).
     */
     std::vector<std::pair<CGXDateTime, CGXDateTime> >& GetCommunicationWindow()
     {
@@ -95,18 +95,18 @@ public:
     }
 
     /**
-     To avoid simultaneous network connections of a lot of devices at ex-actly
-     the same point in time, a randomisation interval in seconds can be defined.
-     This means that the push operation is not started imme-diately at the
+     To avoid simultaneous network connections of a lot of devices at exactly
+     the same point in time, a randomization interval in seconds can be defined.
+     This means that the push operation is not started immediately at the
      beginning of the first communication window but started randomly delayed.
     */
-    int GetRandomisationStartInterval()
+    int GetRandomizationStartInterval()
     {
-        return m_RandomisationStartInterval;
+        return m_RandomizationStartInterval;
     }
-    void SetRandomisationStartInterval(int value)
+    void SetRandomizationStartInterval(int value)
     {
-        m_RandomisationStartInterval = value;
+        m_RandomizationStartInterval = value;
     }
     /**
      The maximum number of retrials in case of unsuccessful push at-tempts. After a successful push no further push attempts are made until the push setup is triggered again.

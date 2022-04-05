@@ -510,7 +510,7 @@ bool CGXStandardObisCodeCollection::EqualsMask(std::string& obisMask, std::strin
     unsigned char bytes[6];
     if (GetBytes(ln, bytes) != DLMS_ERROR_CODE_OK)
     {
-        return NULL;
+        return false;
     }
     std::vector< std::string > tmp = GXHelpers::Split(obisMask, '.');
     return EqualsObisCode(tmp, bytes);

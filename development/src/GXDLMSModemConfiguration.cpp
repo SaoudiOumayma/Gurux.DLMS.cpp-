@@ -231,8 +231,8 @@ int CGXDLMSModemConfiguration::GetValue(CGXDLMSSettings& settings, CGXDLMSValueE
             request = it->GetRequest();
             response = it->GetResponse();
             delay = it->GetDelay();
-            if ((ret = GXHelpers::SetData(&settings, data, DLMS_DATA_TYPE_OCTET_STRING, request)) != 0 ||
-                (ret = GXHelpers::SetData(&settings, data, DLMS_DATA_TYPE_OCTET_STRING, response)) != 0 ||
+            if ((ret = GXHelpers::SetData(&settings, data, DLMS_DATA_TYPE_STRING, request)) != 0 ||
+                (ret = GXHelpers::SetData(&settings, data, DLMS_DATA_TYPE_STRING, response)) != 0 ||
                 (ret = GXHelpers::SetData(&settings, data, DLMS_DATA_TYPE_UINT16, delay)) != 0)
             {
                 return ret;
