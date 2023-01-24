@@ -242,6 +242,8 @@ public:
     // Returns difference in milliseconds.
     static long GetDifference(struct tm& start, CGXDateTime& to);
 
+    static long GetDifference(CGXDateTime& from, CGXDateTime& to);
+
     /////////////////////////////////////////////////////////////////////////
     //Convert value to local time.
     int ToLocalTime(struct tm& localTime);
@@ -257,5 +259,15 @@ public:
     /////////////////////////////////////////////////////////////////////////
     //Return datetime as unix time.
     unsigned long ToUnixTime();
+
+    bool operator<(CGXDateTime& rhs);
+
+    bool operator==(CGXDateTime& rhs);
+
+    bool operator>(CGXDateTime& rhs);
+
+    bool operator>=(CGXDateTime& rhs);
+
+    bool operator<=(CGXDateTime& rhs);
 };
 #endif //GXDATETIME_H

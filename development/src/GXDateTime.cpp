@@ -78,7 +78,7 @@ void GetUtcOffset(struct tm* timeptr, int& hours, int& minutes, int& deviation)
     }
 #endif
 #if defined(__linux__)
-    tm = *localtime(&zero);
+    localtime_r(&zero, &tm);
     short gmtoff = (short)(tm.tm_gmtoff / 60);
     addH = (short)(gmtoff / 60);
     addMin = (short)(gmtoff % 60);
@@ -134,7 +134,7 @@ CGXDateTime::CGXDateTime()
 #if _MSC_VER > 1000
     localtime_s(&dt, &tm1);
 #else
-    dt = *localtime(&tm1);
+    localtime_r(&tm1, &dt);
 #endif
     GetUtcOffset(&dt, hours, minutes, deviation);
     m_Deviation = -(hours * 60 + minutes);
@@ -220,7 +220,7 @@ CGXDateTime::CGXDateTime(int year, int month, int day, int hour, int minute, int
 #if _MSC_VER > 1000
         localtime_s(&dt, &tm1);
 #else
-        dt = *localtime(&tm1);
+        localtime_r(&tm1, &dt);
 #endif
         GetUtcOffset(&dt, hours, minutes, deviation);
         Init(year, month, day, hour, minute, second, millisecond, -(hours * 60 + minutes));
@@ -1108,11 +1108,11 @@ std::string CGXDateTime::ToString()
 CGXDateTime CGXDateTime::Now()
 {
     time_t tm1 = time(NULL);
-#if _MSC_VER > 1000
     struct tm dt;
+#if _MSC_VER > 1000
     localtime_s(&dt, &tm1);
 #else
-    struct tm dt = *localtime(&tm1);
+    localtime_r(&tm1, &dt);
 #endif
     CGXDateTime now(dt);
     return now;
@@ -1221,7 +1221,7 @@ int CGXDateTime::ToLocalTime(struct tm& localTime)
 #if _MSC_VER > 1000
         localtime_s(&localTime, &t);
 #else
-        localTime = *localtime(&t);
+        localtime_r(&t, &localTime);
 #endif
     }
     return 0;
@@ -1325,7 +1325,39 @@ long CGXDateTime::GetDifference(struct tm& start, CGXDateTime& to)
     }
     return diff;
 }
+
+long CGXDateTime::GetDifference(CGXDateTime& from, CGXDateTime& to) {
+  struct tm fromTime;
+  from.ToLocalTime(fromTime);
+  return GetDifference(fromTime, to);
+}
+
 unsigned long CGXDateTime::ToUnixTime()
 {
     return (unsigned long)mktime(&m_Value);
 }
+
+bool CGXDateTime::operator<(CGXDateTime& rhs) {
+	time_t lht = mktime(&(this->m_Value));
+	time_t rht = mktime(&rhs.GetValue());
+	return lht < rht;
+}
+
+bool CGXDateTime::operator==(CGXDateTime& rhs)  {
+	time_t lht = mktime(&(this->m_Value));
+	time_t rht = mktime(&rhs.GetValue());
+	return lht == rht;
+};
+
+bool CGXDateTime::operator>(CGXDateTime& rhs) {
+	return !(*this < rhs || *this == rhs); 
+}
+
+bool CGXDateTime::operator>=(CGXDateTime& rhs) {
+	return (*this > rhs) || (*this == rhs); 
+}
+
+bool CGXDateTime::operator<=(CGXDateTime& rhs) {
+	return (*this < rhs) || (*this == rhs); 
+}
+
