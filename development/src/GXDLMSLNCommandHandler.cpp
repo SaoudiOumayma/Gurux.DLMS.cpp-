@@ -1279,7 +1279,7 @@ int CGXDLMSLNCommandHandler::MethodRequestNextBlock(
     p.SetStreaming(streaming);
     p.SetWindowSize(settings.GetGbtWindowSize());
     //If transaction is not in progress.
-    if (&server->m_Transaction == NULL)
+    if (server->m_Transaction == NULL)
     {
         p.SetStatus(DLMS_ERROR_CODE_NO_LONG_GET_OR_READ_IN_PROGRESS);
     }
