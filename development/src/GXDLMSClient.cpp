@@ -1038,6 +1038,7 @@ int CGXDLMSClient::ParseApplicationAssociationResponse(
                 return ret;
             }
             equals = challenge.Compare(value.byteArr, value.GetSize());
+            m_Settings.SetConnected((DLMS_CONNECTION_STATE) (m_Settings.GetConnected() | DLMS_CONNECTION_STATE_DLMS));
         }
         else
         {
